@@ -8,7 +8,14 @@ import {
   FRONTSTORE_THEME_VALUES,
 } from "./values";
 
-export type ResolvedTheme = "light" | "dark";
+/**
+ * Technical color scheme used for CSS variable switching.
+ * Storefront business naming should use `mode` (`theme_first` / `theme_secondary`).
+ */
+export type ResolvedColorScheme = "light" | "dark";
+
+/** Backward-compatible alias (avoid using as storefront "mode"). */
+export type ResolvedTheme = ResolvedColorScheme;
 
 export interface StoreThemeTokens {
   mounted: boolean;
@@ -16,10 +23,10 @@ export interface StoreThemeTokens {
   isSecondary: boolean;
 
   /**
-   * Backward-compatible light/dark fields (some older components still key off these).
-   * In the frontstore, light/dark is derived from `theme_first` / `theme_secondary`.
+   * Backward-compatible technical color scheme fields.
+   * Storefront semantics remain `theme_first` / `theme_secondary` via `mode`.
    */
-  resolvedTheme: ResolvedTheme;
+  resolvedTheme: ResolvedColorScheme;
   isDark: boolean;
 
   logoSrc: string;
@@ -60,6 +67,7 @@ export interface StoreThemeTokens {
   patternBaseBg: string;
   patternOpacity: number;
   patternSizePx: number;
+  backgroundImage: string;
 }
 
 const DEFAULT_MODE: FrontstoreThemeMode = "theme_first";
@@ -88,7 +96,7 @@ export function useStoreThemeTokens(): StoreThemeTokens {
 
     const colors = FRONTSTORE_THEME_COLORS[mode];
     const assets = FRONTSTORE_THEME_ASSETS[mode];
-    const resolvedTheme: ResolvedTheme = isSecondary ? "dark" : "light";
+    const resolvedTheme: ResolvedColorScheme = isSecondary ? "dark" : "light";
 
     return {
       mounted,

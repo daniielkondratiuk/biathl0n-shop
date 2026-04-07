@@ -191,9 +191,8 @@ export function NavbarClient({ user, enabledLocales }: NavbarClientProps) {
     <div className="sticky top-0 z-50">
       {/* TOP BAR */}
       <div
-        className="relative z-20 transition-colors duration-200"
+        className="relative z-20 bg-[color:var(--store-header-bg)] text-[color:var(--store-header-text)] transition-colors duration-200"
         style={{
-          backgroundColor: isScrolled ? themeTokens.headerBgGlass : themeTokens.headerBgSolid,
           backdropFilter: isScrolled ? `blur(${themeTokens.headerGlassBlurPx}px)` : "none",
           WebkitBackdropFilter: isScrolled ? `blur(${themeTokens.headerGlassBlurPx}px)` : "none",
         }}
@@ -232,7 +231,7 @@ export function NavbarClient({ user, enabledLocales }: NavbarClientProps) {
                     if (e.key === "Enter") handleSearchClick();
                   }}
                   placeholder={`${t("search")}...`}
-                  className="w-full border-0 border-b border-border/40 bg-transparent px-0 py-1 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-ring focus:outline-none"
+                  className="w-full border-0 border-b border-current/25 bg-transparent px-0 py-1 text-sm text-current outline-none transition-colors placeholder:text-current/65 focus:border-current/60 focus:outline-none"
                 />
               </div>
               <button
@@ -242,7 +241,7 @@ export function NavbarClient({ user, enabledLocales }: NavbarClientProps) {
                 className="flex cursor-pointer items-center justify-center"
                 aria-label={t("search")}
               >
-                <SearchIcon className="h-6 w-6 text-foreground" />
+                <SearchIcon className="h-6 w-6 text-current" />
               </button>
             </div>
           </div>
@@ -277,7 +276,7 @@ export function NavbarClient({ user, enabledLocales }: NavbarClientProps) {
       <nav
         ref={linkBarRef}
         aria-label="Secondary"
-        className={`absolute z-10 bg-white/5 shadow-sm shadow-black/20 backdrop-blur-md left-0 right-0 top-full py-2 transition-[transform,opacity] duration-300 ease-out will-change-transform sm:py-2`}
+        className="absolute left-0 right-0 top-full z-10 bg-[color:var(--store-nav-link-bg)] py-2 shadow-sm shadow-black/10 backdrop-blur-md transition-[transform,opacity] duration-300 ease-out will-change-transform sm:py-2"
       >
         <ul className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-20 gap-y-2 px-6 sm:gap-x-24 lg:gap-x-28">
           {NAV_ITEMS.map((item) => {
@@ -290,10 +289,8 @@ export function NavbarClient({ user, enabledLocales }: NavbarClientProps) {
               <li key={item.href}>
                 <Link
                   href={href}
-                  className={`relative inline-flex text-sm font-medium uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-full after:bg-current after:origin-left after:scale-x-0 after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100 ${
-                    isActive
-                      ? "text-foreground after:scale-x-100"
-                      : "text-foreground/70 hover:text-foreground"
+                  className={`relative inline-flex rounded-full px-3 py-1 text-sm font-medium uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current/40 focus-visible:ring-offset-0 hover:bg-[color:var(--store-nav-link-bg)] ${
+                    isActive ? "bg-[color:var(--store-nav-link-bg)]" : ""
                   }`}
                 >
                   {item.label}

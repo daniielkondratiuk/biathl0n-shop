@@ -15,11 +15,11 @@ export function Footer() {
 
   return (
     <footer
-      className="text-foreground"
+      className="text-[color:var(--store-footer-text)]"
       style={
         {
-          backgroundColor: t.footerBgSolid,
-          color: t.footerText,
+          backgroundColor: "var(--store-footer-bg)",
+          color: "var(--store-footer-text)",
           ["--footerTextMuted" as const]: t.footerTextMuted,
         } as CSSProperties
       }
