@@ -36,28 +36,15 @@ export function LocaleSwitcher({ enabledLocales = [] }: LocaleSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  if (!isLocale(locale)) {
-    return null;
-  }
-
-  const currentLocale: Locale = locale;
-  const fallbackLocales = locales.map((supportedLocale) => getLocaleMeta(supportedLocale));
-  const availableLocales = dedupeSupportedLocales(
-    enabledLocales.length > 0 ? enabledLocales : fallbackLocales,
-  );
-  const currentLocaleMeta =
-    availableLocales.find((candidate) => candidate.code === currentLocale) ??
-    getLocaleMeta(currentLocale);
-  const otherLocales = availableLocales.filter((candidate) => candidate.code !== currentLocale);
-
   // Guard flags (evaluated before hooks to keep hooks unconditional)
   const isHiddenRoute = pathname.startsWith("/admin") || pathname.startsWith("/api");
   const firstSegment = pathname.split("/")[1] ?? "";
   const hasLocalePrefix = isLocale(firstSegment);
   const shouldRender = !isHiddenRoute && hasLocalePrefix;
+  const isValidLocale = isLocale(locale);
 
   useEffect(() => {
-    if (!shouldRender) return;
+    if (!isValidLocale || !shouldRender) return;
 
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -75,11 +62,25 @@ export function LocaleSwitcher({ enabledLocales = [] }: LocaleSwitcherProps) {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen, shouldRender]);
+  }, [isOpen, isValidLocale, shouldRender]);
 
-  if (!shouldRender) {
+  if (!isValidLocale || !shouldRender) {
     return null;
   }
+
+  const currentLocale: Locale = locale;
+  const fallbackLocales = locales.map((supportedLocale) =>
+    getLocaleMeta(supportedLocale),
+  );
+  const availableLocales = dedupeSupportedLocales(
+    enabledLocales.length > 0 ? enabledLocales : fallbackLocales,
+  );
+  const currentLocaleMeta =
+    availableLocales.find((candidate) => candidate.code === currentLocale) ??
+    getLocaleMeta(currentLocale);
+  const otherLocales = availableLocales.filter(
+    (candidate) => candidate.code !== currentLocale,
+  );
 
   function switchLocale(nextLocale: Locale) {
     if (nextLocale === currentLocale) {

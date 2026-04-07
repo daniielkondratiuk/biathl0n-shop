@@ -56,7 +56,9 @@ export function RevenueChart({ data }: RevenueChartProps) {
             border: "1px solid hsl(var(--border))",
             borderRadius: "0.5rem",
           }}
-          formatter={(value: number | undefined) => formatCurrency(value ?? 0)}
+          formatter={(value) =>
+            formatCurrency(typeof value === "number" ? value : Number(value ?? 0))
+          }
           labelFormatter={(label) => formatDate(label)}
         />
         <Area

@@ -30,7 +30,7 @@ export interface ShippingSelection {
 export type PickupPointMeta = {
   geo?: { lat: number | null; lng: number | null } | null;
   // Keep raw opening hours structure for now; parsed later if needed
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   openingHours?: any | null;
   network?: string | null;
   type?: string | null;
@@ -81,7 +81,7 @@ export type ColissimoRelayPointResponse = {
       countryCode: string | null;
     };
     geo: { lat: number | null; lng: number | null };
-    openingHours: any | null; // eslint-disable-line @typescript-eslint/no-explicit-any
+    openingHours: any | null;  
   }>;
 };
 

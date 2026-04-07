@@ -100,11 +100,17 @@ export function InventoryTrendChart({ data }: InventoryTrendChartProps) {
               fontSize: "11px",
             }}
             labelFormatter={(label) => formatDate(label)}
-            formatter={(value: number | string | undefined, name?: string) => {
-              const numValue = Number(value) || 0;
-              // Map dataKey to display name
-              const displayName = name === "reserved" ? "Reserved Units" : name === "adjustments" ? "Adjustments" : name || "";
-              return [numValue.toLocaleString(), displayName];
+            formatter={(value, name) => {
+              const normalizedValue =
+                typeof value === "number" || typeof value === "string"
+                  ? String(value)
+                  : Array.isArray(value)
+                    ? value.join(", ")
+                    : ""
+
+              const normalizedName = typeof name === "string" ? name : String(name ?? "")
+
+              return [normalizedValue, normalizedName]
             }}
           />
           <Legend

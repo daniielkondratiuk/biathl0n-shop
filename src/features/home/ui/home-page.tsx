@@ -107,11 +107,13 @@ export async function HomePage() {
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-6">
           <div className="relative overflow-hidden rounded-lg py-24">
-            <img
+            <Image
               src="/banner/1.png"
               alt=""
               aria-hidden="true"
+              fill
               className="absolute inset-0 h-full w-full object-cover"
+              sizes="100vw"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
 

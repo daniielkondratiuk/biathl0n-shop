@@ -13,7 +13,7 @@ export interface GetAdminProductsParams {
 }
 
 export interface AdminProductsListResult {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   items: any[];
   totalCount: number;
   page: number;
