@@ -1,0 +1,63 @@
+{
+  "name": "biathl0n-shop",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "BROWSERSLIST_IGNORE_OLD_DATA=1 next build --webpack",
+    "start": "next start",
+    "lint": "eslint",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "ts-node prisma/seed.ts",
+    "seed-products": "ts-node scripts/seed-products.ts",
+    "seed:colors": "ts-node scripts/seed-colors.ts",
+    "migrate:image-roles": "ts-node scripts/migrate-image-roles.ts",
+    "stripe:listen": "stripe listen --forward-to localhost:3000/api/stripe/webhook"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@hookform/resolvers": "^5.2.2",
+    "@pdf-lib/fontkit": "^1.1.1",
+    "@prisma/client": "^6.0.0",
+    "bcrypt": "^6.0.0",
+    "clsx": "^2.1.1",
+    "deepl-node": "^1.24.0",
+    "lucide-react": "^0.555.0",
+    "next": "^16.1.6",
+    "next-auth": "^4.24.13",
+    "next-intl": "^4.7.0",
+    "next-themes": "^0.4.6",
+    "pdf-lib": "^1.17.1",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
+    "react-hook-form": "^7.67.0",
+    "recharts": "^3.6.0",
+    "resend": "^4.0.0",
+    "sharp": "^0.34.5",
+    "stripe": "^20.0.0",
+    "tailwind-merge": "^3.4.0",
+    "zod": "^4.1.13",
+    "zustand": "^5.0.9"
+  },
+  "overrides": {
+    "minimatch": "10.2.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/bcrypt": "^6.0.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/sharp": "^0.31.1",
+    "baseline-browser-mapping": "^2.9.19",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^15.5.14",
+    "prisma": "^6.0.0",
+    "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  }
+}

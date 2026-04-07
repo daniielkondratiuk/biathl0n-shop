@@ -1,0 +1,273 @@
+---
+openapi: "3.0.1"
+info:
+  version: "3.0.1"
+  x-logo:
+    altText: Colissimo logo
+    backgroundColor: '#FFFFFF'
+    url: '../images/Colissimo.svg'
+  title: "Documentation technique"
+  description: >
+
+
+    # Introduction
+    
+    ## Objet du document
+    
+    
+    
+    La Poste - Colissimo met le web service tunnel de commande à la disposition de ses clients pour pouvoir notamment récuperer et afficher une date de livraison estimée fiable dans leur tunnel de commande.
+    
+    
+    <b style="color: red;" >Le web service peut être utilisé pour toutes les offres La Poste-Colissimo (à domicile France et point de retrait France).</b>
+    
+     
+     
+    Ce document décrit les modalités d'accès et d'utilisations particulières du Web Service.
+
+    ## Pré-requis
+    
+    
+    Selon le langage de programmation utilisé et sa version, vous pourrez être amené à installer des librairies supplémentaires.
+    
+    
+    Un client intéressé par le web service tunnel de commande doit avoir un compte colissimo valide sinon souscrire une offre pour se voir attribuer un compte Colissimo (Colissimo ne propose pas de compte de test).
+
+
+    ## Gestion des caractères accentués et non latins
+    
+    
+    Il est nécessaire que les caractères soient encodés en UTF-8.
+    Les caractères non latins généreront une erreur.
+
+
+    ## Format et traitement de la réponse du web service
+    
+    
+    Le Web Service utilise la technologie MTOM (Message Transmission Optimization Mechanism). 
+
+
+
+    ## Sécurité : préconisation du protocole HTTPS
+    
+    
+    L'accès à ce Web Service étant protégé par un identifiant et un mot de passe (ou clé api), données à caractère sensible, La Poste - Colissimo préconise d'utiliser le protocole HTTPS pour le transport de ces données.
+    
+    
+    Ne pas utiliser ce protocole vous expose à l'interception de vos identifiants par un tiers malveillant, lequel pourrait ainsi usurper l'identité du compte, et donc :
+    
+    
+    •	accéder à votre espace entreprise (facture online, suivi des colis),
+    
+    
+    •	commander des produits, facturés au compte usurpé,
+    
+    
+    •	accéder aux autres solutions mises à disposition par La Poste – Colissimo.
+    
+    
+    Les conditions d'utilisation de cette solution spécifient que le Client s'engage à prendre toutes les mesures propres à assurer la sécurité et la confidentialité de son identifiant et de son mot de passe.
+    
+    
+    Dès lors qu'ils sont réalisés en utilisant l'identifiant et le mot de passe du client, l'accès au web service, la transmission de données et toute autre opération sont considérés comme étant le fait du client.
+
+
+
+    
+
+    ## Accès au Web Service
+    
+    
+    L'invocation du Web Service par le client s'effectue au moyen d'une requête HTTPS.
+
+    ## URL d'accès
+    
+    
+    Le Web Service tunnel de commande La Poste – Colissimo est accessible via l’url indiquée dans les sous chapitres ci-dessous.
+
+    ## Appel en mode REST
+    
+    
+    Le protocole REST est à utiliser pour la methode Date de livraison du Web Service tunnel de commande La Poste – Colissimo et est accessible à l'adresse suivante.
+    
+    
+    https://ws.colissimo.fr/tunnel-commande/rest/TunnelCommandeWS/getDateLivraison
+
+    ## Appel en mode SOAP
+    
+  
+    Pas de mode soap
+
+
+    ## Authentification
+    
+    
+    Ce service nécessite l'utilisation de votre numéro de contrat La Poste - Colissimo et de votre mot de passe, que vous pouvez recevoir par mail à l'ouverture de votre contrat ou sur demande auprès de votre interlocuteur commercial usuel La Poste - Colissimo.
+    
+    
+    Ces identifiants vous permettent également d'accéder à votre espace client sous https://www.colissimo.fr/entreprise
+    
+    
+    <b>CAS : Gestion des utilisateurs :</b>
+    
+    
+    Pour les utilisateurs ayant reçu une délégation sur le Web Service, il faut renseigner le numéro de compte client dans la balise et le compte utilisateur dans la balise
+    
+    
+    <b>CAS : Authentification avec une clé API :</b>
+    
+    
+    Les utilisateurs de la methode Date de Livraison peuvent s'authentifier via une clé API à renseigner dans le champs apiKey
+
+
+    <div align="center">
+      <img alt="See the Colissimo Box if you have an incident" src="../images/authentEnveloppe.png" />
+    </div>
+  
+  
+    <b>Attention:</b>
+  
+  
+    Vous avez la possibilité de modifier votre mot de passe ou le recharger la clé API dans l'espace client.
+  
+  
+    Si vous modifiez votre mot de passe ou la clé API dans l'espace client, vous devez également le modifier dans l'invocation du web service, faute de quoi l'accès au web service sera refusé.
+    
+    
+    # Contact
+    
+    La Poste - Colissimo met à votre disposition un support, que nous vous invitons à contacter.
+    
+    
+    
+    <b>Support en ligne:</b>  <a href="https://www.colissimo.fr/entreprise/mes-demandes/#/home" >Mes Demandes (colissimo.fr)</a>
+
+
+    <b>Contact téléphonique</b> : <b>02 41 17 42 08 88 </b>
+
+
+
+    Du lundi au vendredi (hors jours fériés) de 8h à 18h
+
+
+
+     Le support est là pour répondre à vos questions : 
+
+
+    * Aide au déploiement de la solution technique au sein de votre entreprise
+    
+    
+    * Assistance en cas de dysfonctionnement ou de difficultés après intégration de la solution technique
+    
+    
+    * Accompagnement en cas de panne, d’anomalie ou d’incident sur les applications de votre espace client (l'Outil de Suivi Colis, ColiShip, Retour Colissimo).
+    
+    
+    Un numéro de dossier vous sera communiqué par le Support Solutions Client lorsque la demande sera prise en compte.
+paths:
+  /getDateLivraison:
+    post:
+      tags:
+      - Description        et exemples des méthodes du WS tunnel de commande 
+      summary: getDateLivraison
+      description: Cette méthode retourne une date        de livraison estimée ainsi qu’un message court permettant au destinataire        de voir la date de livraison estimée et fiable dans le tunnel de commande.
+      operationId: getDateLivraison_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DateLivraisonRequest"
+        required: true
+      responses:
+        "200":
+          description: Retour OK
+        "400":
+          description: Erreur de traitement de la requête
+      x-codeSamples:
+        - lang: Requête
+          source: |
+            {
+              "credentials":{
+                "login":"string",
+                "password":"string",
+                "apiKey":"",
+                "partnerClientCode":""
+              },
+              "data":{
+                "depositDate":"2024-12-20",
+                "regateDepart":"354050",
+                "zipCodeDest":"29510",
+                "customFields":{
+                  "additionalProp1": "string",
+                  "additionalProp2": "string"
+                  }
+              }
+            }
+        - lang: Réponse sans erreur
+          source: |
+            {
+              "errorCode":"OK",
+              "message":"La requête a été traitée avec succès",
+              "deliveryDate":"19/11/2024",
+              "shortMessage":"Votre colis vous sera livré le 19/11/2024"
+            }
+        - lang: Réponse avec erreur
+          source: |
+            {
+              "errorCode":"AUCUNE_DONNEE_COLLECTE",
+              "message":"Aucune donnée collecte trouvée pour les données en entrée",
+              "deliveryDate":null,
+              "shortMessage":null
+            }
+  /health:
+    get:
+      tags:
+      - Healthcheck
+      summary: health
+      description: supervision pour le client
+      operationId: health_1
+      responses:
+        "200":
+          description: Retour OK
+        "400":
+          description: Erreur de traitement de la requête
+components:
+  schemas:
+    CredentialType:
+      type: object
+      properties:
+        login:
+          type: string
+          description: Obsolète. Utiliser l'apikey à la place comme            expliqué dans "Authentification avec une clé API".
+        password:
+          type: string
+          description: Obsolète. Utiliser l'apikey à la place comme            expliqué dans "Authentification avec une clé API".
+        apiKey:
+          type: string
+          description: Clé API
+        partnerClientCode:
+          type: string
+          description: Code client partenaire
+    DataType:
+      type: object
+      properties:
+        depositDate:
+          type: string
+          description: "\            \ Date de dépôt au format YYYY-MM-DD, obligatoire"
+        regateDepart:
+          type: string
+          description: "Code regate du site\            \ de départ, obligatoire"
+        zipCodeDest:
+          type: string
+          description: "Code\            \ postal sur 5 caractères, obligatoire"
+        customFields:
+          type: object
+          additionalProperties:
+            type: string
+    DateLivraisonRequest:
+      type: object
+      properties:
+        credentials:
+          $ref: "#/components/schemas/CredentialType"
+        data:
+          $ref: "#/components/schemas/DataType"

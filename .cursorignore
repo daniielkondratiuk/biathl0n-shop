@@ -1,0 +1,67 @@
+# ================================
+# deps / build
+# ================================
+node_modules/
+.next/
+dist/
+out/
+coverage/
+*.tsbuildinfo
+
+# ================================
+# VCS / IDE
+# ================================
+.git/
+.idea/
+.vscode/
+
+# ================================
+# heavy assets / binaries
+# ================================
+public/temp/
+public/uploads/
+public/**/*.webp
+public/**/*.png
+public/**/*.jpg
+public/**/*.jpeg
+public/**/*.gif
+public/**/*.ico
+
+# ================================
+# prisma migrations (lots of noise)
+# ================================
+prisma/migrations/
+
+# ================================
+# lockfile noise
+# ================================
+package-lock.json
+
+# ================================
+# docs: keep only canonical docs + key root docs
+# ================================
+*.md
+!README.md
+!ARCHITECTURE.md
+!docs/**/*.md
+
+# hide archived docs from Cursor reads
+docs/archive/
+
+# ================================
+# i18n / localization (CRITICAL)
+# ================================
+messages/
+messages/**/*.json
+
+# ================================
+# legal pages (very large content)
+# ================================
+app/**/privacy-policy/**
+app/**/terms-of-service/**
+
+# ================================
+# generated / rarely edited
+# ================================
+public/sitemap.xml
+public/robots.txt

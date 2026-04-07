@@ -1,0 +1,577 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELED
+}
+
+enum PaymentStatus {
+  PENDING
+  REQUIRES_ACTION
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  CANCELED
+}
+
+enum PaymentProvider {
+  STRIPE
+}
+
+enum AuditAction {
+  USER_REGISTER
+  USER_LOGIN
+  PRODUCT_CREATE
+  PRODUCT_UPDATE
+  PRODUCT_DELETE
+  CATEGORY_CREATE
+  CATEGORY_UPDATE
+  CATEGORY_DELETE
+  ORDER_CREATE
+  ORDER_STATUS_UPDATE
+  ORDER_LABEL_GENERATED
+  INVENTORY_ADJUSTMENT
+}
+
+enum InventoryMovementType {
+  RESERVED
+  ADJUSTMENT
+  PURCHASE
+  RETURN
+  CANCELLATION
+}
+
+enum Gender {
+  MEN
+  WOMEN
+  KIDS
+  UNISEX
+}
+
+enum Size {
+  XS
+  S
+  M
+  L
+  XL
+  XXL
+}
+
+enum ProductBadge {
+  NEW
+  BESTSELLER
+  SALE
+  LIMITED
+  BACKINSTOCK
+  TRENDING
+}
+
+enum ImageRole {
+  MAIN
+  MAIN_DETAIL
+  GALLERY
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  VOID
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String?
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(USER)
+
+  orders        Order[]
+  carts         Cart[]
+  addresses     Address[]
+  auditLogs     AuditLog[]
+  wishlistItems WishlistItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  nameFr      String?
+  slug        String  @unique
+  description String?
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Color {
+  id     String  @id @default(cuid())
+  name   String
+  nameFr String?
+  slug   String  @unique
+  hex    String // Hex color code (e.g., "#FF0000")
+
+  colorVariants ProductColorVariant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+}
+
+model Product {
+  id          String  @id @default(cuid())
+  name        String // Keep for backward compatibility
+  title       String  @default("") // New preferred field - required, populated from name in migration
+  slug        String  @unique
+  description String?
+  basePrice   Int     @default(0) // in cents - base price before variants/patches
+  price       Int // in cents - kept for backward compatibility (deprecated, use basePrice)
+  stock       Int     @default(0) // Legacy - use variants for stock management
+  visible     Boolean @default(true) // Keep for backward compatibility
+  isActive    Boolean @default(true) // New preferred field
+  showInHero  Boolean @default(false) // Show product in hero banner slider
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  // New fields
+  gender          Gender?
+  badge           ProductBadge?
+  defaultPatchIds String[] // Array of default patch IDs
+
+  colorVariants ProductColorVariant[]
+  patches       ProductPatch[]
+  orderItems    OrderItem[]
+  cartItems     CartItem[]
+  inventory     InventoryMovement[]
+  wishlistItems WishlistItem[]
+  translations  ProductTranslation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([isActive])
+  @@index([gender])
+  @@index([badge])
+}
+
+model ProductTranslation {
+  id          String  @id @default(cuid())
+  productId   String
+  locale      String
+  title       String
+  description String?
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, locale])
+  @@index([locale])
+}
+
+model Language {
+  code       String   @id
+  name       String
+  nativeName String?
+  enabled    Boolean  @default(false)
+  isDefault  Boolean  @default(false)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ProductColorVariant {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  colorId   String
+  color     Color   @relation(fields: [colorId], references: [id], onDelete: Restrict)
+
+  sortOrder Int     @default(0) // Per-product display order (admin drag & drop)
+  priceDiff Int     @default(0) // Price difference from basePrice in cents
+  isActive  Boolean @default(true)
+
+  images ProductImage[]
+  sizes  ProductSizeVariant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, colorId]) // One color variant per color per product
+  @@index([productId])
+  @@index([colorId])
+}
+
+model ProductSizeVariant {
+  id             String              @id @default(cuid())
+  colorVariantId String
+  colorVariant   ProductColorVariant @relation(fields: [colorVariantId], references: [id], onDelete: Cascade)
+
+  size          Size
+  stock         Int    @default(0) // Physical stock on hand
+  stockReserved Int    @default(0) // Stock reserved for pending/paid orders
+  priceDiff     Int    @default(0) // Price difference from color variant price
+  sku           String @unique
+
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+  inventory  InventoryMovement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([colorVariantId, size]) // One size variant per size per color variant
+  @@index([colorVariantId])
+  @@index([size])
+  @@index([sku])
+}
+
+model ProductImage {
+  id             String              @id @default(cuid())
+  colorVariantId String
+  colorVariant   ProductColorVariant @relation(fields: [colorVariantId], references: [id], onDelete: Cascade)
+
+  url   String
+  role  ImageRole // MAIN, MAIN_DETAIL, or GALLERY
+  order Int       @default(0) // Sort order for GALLERY images
+
+  createdAt DateTime @default(now())
+
+  @@index([colorVariantId])
+  @@index([colorVariantId, role])
+}
+
+model Cart {
+  id String @id @default(cuid())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  // For guest carts we can use a session or anonymous token
+  anonymousToken String? @unique
+
+  items CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model CartItem {
+  id String @id @default(cuid())
+
+  cartId String
+  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  sizeVariantId String?
+  sizeVariant   ProductSizeVariant? @relation(fields: [sizeVariantId], references: [id], onDelete: Cascade)
+
+  selectedPatchIds String[] // Array of patch IDs selected for this cart item
+  quantity         Int      @default(1)
+  unitPrice        Int // in cents, captured at time of adding (basePrice + colorVariant.priceDiff + sizeVariant.priceDiff + patches)
+  finalPrice       Int      @default(0) // in cents, final calculated price (unitPrice * quantity)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([cartId])
+  @@index([productId])
+  @@index([sizeVariantId])
+}
+
+model Order {
+  id          String  @id @default(cuid())
+  orderNumber String? @unique // Human-friendly order number (e.g., "UFO-000123")
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  status   OrderStatus @default(PENDING)
+  total    Int // total in cents
+  currency String      @default("EUR")
+
+  items   OrderItem[]
+  address Address?
+  payment Payment?
+  invoice Invoice?
+
+  stripeCheckoutSessionId String?
+
+  notes          String?
+  trackingNumber String?
+  carrier        String?
+  labelPath        String?
+  labelGeneratedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  inventoryMovements InventoryMovement[]
+
+  @@index([userId])
+  @@index([orderNumber])
+  @@index([createdAt])
+  @@index([status], map: "Order_status_idx")
+  @@index([status, createdAt], map: "Order_status_createdAt_idx")
+}
+
+model OrderItem {
+  id String @id @default(cuid())
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  sizeVariantId String?
+  sizeVariant   ProductSizeVariant? @relation(fields: [sizeVariantId], references: [id], onDelete: Restrict)
+
+  selectedPatchIds String[] // Array of patch IDs selected for this order item
+  quantity         Int
+  unitPrice        Int // in cents (basePrice + colorVariant.priceDiff + sizeVariant.priceDiff + patches)
+  totalPrice       Int // quantity * unitPrice
+  finalPrice       Int      @default(0) // in cents, final calculated price (same as totalPrice)
+
+  // Snapshotted data for historical accuracy
+  productName  String
+  productSlug  String
+  productImage String?
+  variantLabel String?
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([sizeVariantId])
+}
+
+model Address {
+  id String @id @default(cuid())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  orderId String? @unique
+  order   Order?  @relation(fields: [orderId], references: [id])
+
+  fullName   String
+  phone      String
+  line1      String
+  line2      String?
+  city       String
+  state      String?
+  postalCode String
+  country    String
+
+  isPrimary Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([orderId])
+  @@index([userId, isPrimary])
+}
+
+model Payment {
+  id String @id @default(cuid())
+
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  provider          PaymentProvider
+  providerPaymentId String // e.g. Stripe payment_intent id
+
+  amount   Int // in cents
+  currency String        @default("usd")
+  status   PaymentStatus @default(PENDING)
+
+  rawPayload Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status], map: "Payment_status_idx")
+  @@index([orderId, status], map: "Payment_orderId_status_idx")
+}
+
+model AuditLog {
+  id String @id @default(cuid())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  action     AuditAction
+  entityType String
+  entityId   String
+  metadata   Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityType, entityId])
+}
+
+model InventoryMovement {
+  id String @id @default(cuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  sizeVariantId String?
+  sizeVariant   ProductSizeVariant? @relation(fields: [sizeVariantId], references: [id], onDelete: Cascade)
+
+  orderId String?
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  quantity     Int
+  movementType InventoryMovementType
+  reason       String?
+
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@index([sizeVariantId])
+  @@index([orderId])
+}
+
+model Patch {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  image       String // Image URL
+  price       Int // in cents
+  isActive    Boolean @default(true)
+
+  products ProductPatch[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([slug])
+}
+
+model ProductPatch {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  patchId   String
+  patch     Patch   @relation(fields: [patchId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([productId, patchId])
+  @@index([productId])
+  @@index([patchId])
+}
+
+model WishlistItem {
+  id             String  @id @default(cuid())
+  userId         String
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  colorVariantId String?
+  sizeVariantId  String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId, colorVariantId, sizeVariantId])
+  @@index([userId])
+  @@index([productId])
+  @@index([colorVariantId])
+}
+
+model CompanyProfile {
+  id               String   @id @default("default")
+  legalName        String
+  brandName        String
+  email            String
+  phone            String
+  addressLine1     String
+  addressLine2     String?
+  postalCode       String
+  city             String
+  country          String
+  siren            String?
+  siret            String?
+  vatId            String?
+  vatNote          String?
+  currency         String   @default("EUR")
+  invoicePrefix    String   @default("INV")
+  invoiceNextNumber Int     @default(1)
+  paymentTerms     String?
+  legalFooter      String?
+  logoUrl          String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Invoice {
+  id                   String        @id @default(cuid())
+  orderId              String        @unique
+  order                 Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  invoiceNumber        String        @unique
+  prefix               String
+  sequenceNumber       Int
+  status               InvoiceStatus  @default(ISSUED)
+  issuedAt             DateTime      @default(now())
+  paidAt               DateTime?
+  currency             String        @default("EUR")
+  subtotalCents        Int
+  taxCents             Int            @default(0)
+  totalCents           Int
+  companySnapshot      Json
+  customerSnapshot     Json
+  lineItemsSnapshot    Json
+  stripePaymentIntentId String?
+  stripeSessionId      String?
+  pdfData              Bytes?
+  pdfGeneratedAt       DateTime?
+  pdfMimeType          String         @default("application/pdf")
+  emailSentAt          DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  @@index([invoiceNumber])
+  @@index([orderId])
+}
+
+model AdminJobState {
+  key       String    @id
+  lastRunAt DateTime?
+  updatedAt DateTime  @updatedAt
+}

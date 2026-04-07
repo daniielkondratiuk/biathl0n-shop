@@ -1,0 +1,2803 @@
+---
+swagger: "2.0"
+info:
+  version: "1.0"
+  x-logo:
+    altText: Colissimo logo
+    backgroundColor: "#FFFFFF"
+    url: ../images/Colissimo.svg
+  title: Documentation technique
+  description: >
+    
+    <b>Solution Flexibilité – Choix de livraison</b><br>
+    <b>Offre Entreprises</b>
+    
+
+    <b>WEB SERVICE DE CHOIX DE LIVRAISON</b><br><br>
+
+    Document technique – Mai 2025<br>
+    Spécifications du web service choix de livraison    
+       
+    # I. Introduction
+    
+    ## I.1 Object du document
+
+    Dans le cadre de l’offre La Poste, Colissimo met à disposition de ses clients e-commerçants un Web Service qui restitue les différents modes de livraison proposés pour les destinataires de leurs colis : 
+     
+      - En bureaux de Poste en France, et à l’international
+     
+      - En points relais commerçant et consignes du réseau national et international<br>
+      
+      Les pays éligibles à l’international sont listés en annexe V.3 Inter : Liste des pays éligibles.
+      
+    Ce document décrit les généralités du protocole SOAP utilisé ainsi que les modalités d’accès au Web Service Choix de Livraison.
+      
+     
+
+    ## I.2 Terminologie
+
+    <table width="100%">
+        <tbody>
+        <tr style="background-color: #e89236;">
+         <td width="121"> <strong>TERME</strong> </td>
+         <td width="484"> <strong>DESCRIPTION</strong> </td>
+          </tr>
+          <tr>
+           <tr>
+          <td width="121"> <strong>Point Retrait</strong> </td>
+          <td width="484"> Lieu de livraison hors-domicile, dans lequel le colis est mis à disposition du
+           destinataire </td>
+            </tr>
+             <tr>
+            <td width="121"><strong>Chargeur</strong></td>
+            <td width="484">E-marchand client de La Poste - Colissimo et invoquant le Web Service </td>
+             </tr>
+              <tr>
+            <td width="121"><strong>Acheteur</strong></td>
+            <td width="484">Internaute, client du chargeur </td>
+             </tr>
+              <tr>
+            <td width="121"><strong>Ilot</strong></td>
+            <td width="484">Zone géographique représentant un bloc d’habitations, c'est-à-dire un espace du
+                 territoire français délimité par des chaussées et qui répond à la nomenclature
+                 définie par L’INSEE
+          </td>
+           </tr>
+            <tr>
+          <td width="121"><strong>Jour ouvré</strong></td> 
+          <td width="484">Du lundi au vendredi hors jours fériés
+          </td>
+           </tr>
+            </tr>
+           </tbody>
+              </table>
+
+
+
+
+     
+    ## I.3 Prérequis techniques
+    
+     Vous devez disposer d’une implémentation client pour accéder à un Web Service SOAP.<br>
+     En voici une liste non exhaustive et qui concerne les langages les plus courants :
+     
+      <table width="100%">
+         <tbody>
+        <tr style="background-color: #e89236;">
+         <td width="121"> <strong>LANGAGE</strong> </td>
+         <td width="484"> <strong>Implémentation Client SOAP</strong> </td>
+         </tr>
+        <tr>
+        <tr>
+         <td width="121"> <strong>Java</strong> </td>
+         <td width="484"> Apache Axis : http://ws.apache.org/axis/index.html </td>
+         </tr>
+         <tr>
+         <td width="121"><strong>.Net (C#, VB.Net,ASP.Net)</strong></td>
+         <td width="484">Microsoft SOAP Toolkit : http://msdn.microsoft.com/webservices/ </td>
+         </tr>
+         <tr>
+         <td width="121"><strong>Perl</strong></td>
+         <td width="484">Perl	SOAP::Lite : http://www.soaplite.com/</td>
+         </tr>
+         <tr>
+         <td width="121"><strong>C++</strong></td>
+         <td width="484">Apache Axis C++ : http://ws.apache.org/axis/cpp
+             gSOAP C++ : http://www.cs.fsu.edu/~engelen/soap.html
+           SOAP C++ SQLData :
+            http://www.sqldata.com/soapclient/soapclient30.htm
+          </td>
+          </tr>
+          <tr>
+          <td width="121"><strong>PHP</strong></td><td width="484">PHP-SOAP : http://phpsoaptoolkit.sourceforge.net/phpsoap/
+               PEAR SOAP Client/Server for PHP :
+               http://pear.php.net/package/SOAP
+          </td>
+          <tr>
+          <td width="121"><strong>Python</strong></td>
+          <td width="484">Python Web Services : http://pywebsvcs.sourceforge.net/
+          </td>
+          </tr>
+          </tr>
+          </tbody>
+            </table>
+
+
+    ## I.4 Codification des Conditions
+    
+    
+        <table width="100%">
+        <tbody>
+        <tr style="background-color: #e89236;">
+          <td width="121"> <strong>Code</strong> </td>
+          <td width="484"> <strong>Description</strong> </td>
+        </tr>
+        <tr>
+          <td width="121"> <strong>O</strong> </td>
+          <td width="484"> <strong>Donnée obligatoire : </strong> L’information portée par cette donnée doit être systématiquement présente. </td>
+        </tr>
+        <tr>
+          <td width="121"> <strong>F</strong></td>
+          <td width="484"> <strong>Donnée facultative :</strong> Cette information pourra être fournie si elle est présente dans le système d’information émetteur. </td>
+        </tr>
+        <tr>
+          <td width="121"> <strong>C</strong></td>
+          <td width="484"> <strong>Présence conditionnée par le contenu d’un autre champ </strong> </td>
+        </tr>
+        <tr>
+          <td width="121"> <strong>N</strong></td>
+          <td width="484"> <strong>Donnée non obligatoire : </strong>L’information portée par cette donnée peut ne pas êre présente.</td>
+        </tr>
+        </tbody>
+        </table>    
+    
+    
+    ## I.5 Gestion des caractères accentués
+    
+
+    Le Charset à utiliser pour invoquer le web service est : UTF-8.
+
+
+    # II. LE WEB SERVICE CHOIX DE LIVRAISON
+
+    L’invocation du Web Service par le chargeur s’effectue via une requête HTTPS encapsulant une demande de restitution de points de retrait.<br><br>
+    Le Web Service décrit dans ce document propose les méthodes suivantes :
+    
+      - <strong>la méthode findRDVPointRetraitAcheminement :</strong> à partir d’une adresse postale fournie en entrée, restitue les points de retrait les plus proches de cette adresse.
+    
+      - <strong>la méthode findPointRetraitAcheminementByID :</strong> à partir d’un Identifiant de Point Retrait (identifiant Point Retrait), restitue le détail des informations associé au Point Retrait transmis.
+
+
+    ## II.1  Accès au web service
+
+    Le Web service Choix de Livraison est accessible depuis l’adresse url suivante :<br><br>
+    
+    En SOAP : <br> 
+    https://ws.colissimo.fr/pointretrait-ws-cxf/PointRetraitServiceWS/2.0?wsdl <br><br>
+    
+    En REST : <br>
+    
+    Obtenir la liste des Points de retrait proche d'une adresse :<br>
+    https://ws.colissimo.fr/pointretrait-ws-cxf/rest/v2/pointretrait/findRDVPointRetraitAcheminement<br><br>
+    
+    Obtenir le détail sur un point de retrait :<br>
+    https://ws.colissimo.fr/pointretrait-ws-cxf/rest/v2/pointretrait/findPointRetraitAcheminementByID
+    
+    
+    Ce service nécessite l’utilisation d’une clé d’authentification (apikey) que vous pouvez générer depuis votre espace client (CBOX) sous 
+    https://www.colissimo.fr/entreprise où vous pourrez obtenir la dernière version disponible de cette documentation.
+    
+    Tout usage jugé non-conforme par La Poste entraînera la coupure du service sans préavis.
+    
+    
+    <strong>Expiration et renouvellement de la clé de connexion aux Web Services</strong><br><br>
+    
+    La clé d'authentification n'a pas de durée de vie limitée pour le moment. Il est de votre responsabilité de régulièrement mettre à jour votre clé régulièrement via la Cbox.<br><br>
+    
+    Vous pouvez la mettre à jour en vous connectant avec vos identifiants (nom d'utilisateur et mot de passe) à la Cbox, puis aller dans l'espace d'édition de votre profil, 
+    et cliquer sur le bouton "générer" à côté du champ "Clés de connexion aux Web Services".<br><br>
+    
+    La mise à jour est immédiate. Attention, si vous modifiez votre clé de connexion dans l'espace client, vous devez également le modifier dans l'invocation du web service, 
+    faute de quoi l'accès au web service sera refusé.<br><br>
+    
+    
+    <strong>Gestion des Erreurs d'Authentification</strong><br><br>
+    
+    En cas d'erreur d'authentification, l'API renverra un code d'état  avec un message décrivant la nature de l'erreur. Assurez-vous de gérer ces erreurs correctement dans votre 
+    application pour offrir une bonne expérience utilisateur.<br><br>
+    
+    <strong>Bonnes Pratiques</strong><br><br>
+    
+    - Sécurité : Ne partagez que si nécessaire votre clé de connexion aux Web Services. Traitez-le comme un mot de passe.
+    
+    - Stockage : Stockez votre jeton de manière sécurisée sur le client (par exemple, dans un stockage sécurisé côté client).
+    
+    - Renouvellement : Changez régulièrement votre clé d'authentification.
+
+
+
+    ## II.2 Les différents modes d’authentification
+    
+    
+    1. L’utilisateur est le propriétaire du compte pour lequel il effectue la recherche, il utilisera un apiKey.<br><br>
+    
+    2. L’utilisateur est un partenaire qui recherche pour le compte d’un client, il utilisera : apiKey plus code tiers du compte (codTiersPourPartenaire).
+    
+    
+    <strong>Exemple du paramètre de connexion en SOAP :</strong>
+   
+               
+    1. Authentification d’un admin par apiKey
+                
+           <apikey>MY_API_KEY</apikey>
+                    
+    2. Authentification d’un partenaire par apiKey et code partenaire
+    
+           <apikey>MY_API_KEY</apikey>
+           <codTiersPourPartenaire>100001</codTiersPourPartenaire>
+
+
+    <strong>Exemple du paramètre de connexion en REST :</strong>
+    
+    
+    1. Authentification d’un admin par apiKey
+    
+            "apikey": "MY_API_KEY"
+
+    2. Authentification d’un partenaire par apiKey et code partenaire
+           
+             "apikey": "MY_API_KEY",
+             "codeTiersPourPartenaire": "XXXXXX"
+
+                        
+    
+    ## II.3 Supervision du web service et continuité du processus de commande
+
+
+    En sus des mécanismes de supervision des infrastructures applicatives et matérielles qui ne garantissent pas par eux-mêmes la disponibilité de l’ensemble 
+    de la chaine de traitement, la Poste - Colissimo recommande aux chargeurs la mise en oeuvre
+     
+     - D’un contrôle préalable à l’invocation du Web Service.
+     - Pour ce faire, La Poste - Colissimo met à disposition des chargeurs, l’URL de supervision suivante pour permettre de vérifier si le Web Service est disponible : <br>
+       http://ws.colissimo.fr/supervision-wspudo/supervision.jsp
+     
+     Cette URL pointe sur une page qui affiche [OK] si le WS est opérationnel. Elle affiche [KO] dans le cas contraire.
+     
+     La vérification de disponibilité du service consiste en l’appel de la page de supervision par le chargeur suivi de la recherche de la chaîne de caractère [OK] dans cette page.
+     
+     
+     ## II.4 Sécurité : préconisation du protocole HTTPS
+     
+     L’accès à ce web service étant protégé par un identifiant et un mot de passe, données à
+     caractère sensible, Colissimo préconise d’utiliser le protocole HTTPS pour le transport de ces données.
+     
+     Ne pas utiliser ce protocole expose le Client à l’interception par un tiers malveillant, de ses identifiants,
+     ce qui permettrait à ce dernier d’usurper l’identité du Client, et ainsi :
+     
+     - D’accéder à son espace entreprise (facture online, suivi des colis)
+     - De commander des produits, qui seront ensuite facturés au compte client usurpé
+     - D’accéder aux autres solutions mises à disposition par Colissimo
+     
+     
+     Le Client s'engage à prendre toutes mesures propres à assurer la sécurité et la confidentialité de son identifiant et de son mot de passe.
+     
+     
+     Tout accès et transmission de données effectuées et plus largement toute opération effectuée en utilisant
+      l’identifiant et le mot de passe du Client sont réputées effectués par ce dernier.
+      
+     ## II.5 Méthode findRDVPointRetraitAcheminement
+
+      ### II.5.1 Paramètres en entrée via SOAP
+      
+      <table width="100%">
+      <tbody>
+      <tr style="background-color: #e89236;">
+         <td width="121"> <strong>Paramètre</strong> </td>
+         <td width="484"> <strong>Signification</strong> </td>
+         <td width="484"> <strong>Type</strong> </td>
+         <td width="484"> <strong>Condition</strong> </td>
+         
+      </tr>
+      <tr>
+         <td width="121"> <strong>apiKey</strong> </td>
+         <td width="484"> Identifiant du client partenaire </td>
+         <td width="484">32 caractères alphanumérique<br>
+                         Il s’agit d’une clé utilisateur généré par le client pour son partenaire qui lui permet de disposer de la délégation de droits sur plusieurs comptes 
+                         (création d’un compte utilisateur avancé depuis la Colissimo Box par le client)</td>
+         <td width="121">O</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>codTiersPourPartenaire</strong> </td>
+         <td width="484"> Identifiant du client </td>
+         <td width="484">6 caractères numériques
+         (NNNNNN)</td>
+          <td width="121">C</td>
+           </tr>
+                 <tr>
+         <td width="121"> <strong>address</strong> </td>
+         <td width="484"> Numéro et libellé de
+         la voie de l’adresse
+         de livraison </td>
+         <td width="484">200 caractères
+         Alphanumériques</td>
+          <td width="121">O</td>
+           </tr>
+           <tr>
+         <td width="121"> <strong>zipCode</strong> </td>
+         <td width="484"> Code postal de
+         l’adresse de
+         livraison </td>
+         <td width="484">5 caractères
+         Alphanumériques</td>
+          <td width="121">O</td>
+           </tr>
+           <tr>
+         <td width="121"> <strong>city</strong> </td>
+         <td width="484"> Commune de
+         l’adresse de
+         livraison</td>
+         <td width="484">50 caractères
+         Alphanumériques</td>
+          <td width="121">O</td>
+           </tr>
+           <tr>
+         <td width="121"> <strong>countryCode</strong> </td>
+         <td width="484">Pays de l’adresse de
+         livraison Selon la
+         norme ISO 3166
+         Doit être cohérent
+         avec l’option
+         international
+         (optionInter)</td>
+         <td width="484">2 caractères
+         alphanumériques
+         Valeurs possibles : FR ou
+         cf annexe Inter : Liste des pays éligibles 
+         Par défaut, vaut FR</td>
+          <td width="121">O</td>
+           </tr>
+            <tr>
+         <td width="121"> <strong>weight </strong> </td>
+         <td width="484">Poids du colis </td>
+         <td width="484">5 caractères numériques (NNNNNN) Exprimé en grammes </td>
+         <td width="121">N</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>shippingDate *</strong> </td>
+         <td width="484">Date estimée de l’envoi <br>
+                         Correspond à la date de commande plus le délai de préparation de la commande en jours ouvrés </td>
+         <td width="484">10 caractères alphanumériques (JJ/MM/AAAA)
+         </td>
+         <td width="121">O</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>filterRelay </strong> </td>
+         <td width="484">Permet de filtrer les points commerces de proximité</td>
+         <td width="484">1 caractère Alphanumérique Valeurs possibles :<br>
+                         0 -> Pour obtenir uniquement les bureaux de Poste<br>
+                         1 -> Pour obtenir tous les points (bureaux de Poste, relais commerçants Pickup, consignes Pickup, voisins-Relais Pickme,...)<br>
+                         2 -> Pour obtenir uniquement les points Pickup<br>
+                         3 -> Pour obtenir uniquement les relais commerçants Pickup<br>
+                         5 -> Pour obtenir uniquement les bureaux de Poste et les relais commerçants Pickup<br>
+                         10 -> Pour obtenir tous les points sans les consignes Pickup<br>
+                         11 -> Pour obtenir tous les points sans les voisins-relais Pickme	
+         </td>
+         <td width="121">N</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>requestId  </strong> </td>
+         <td width="484">Identifiant unique
+         généré par
+         l’utilisateur du web
+         service (par
+         exemple le numéro
+         de commande),
+         permettant
+         d’identifier la
+         requête. </td>
+         <td width="484">64 caractères
+         alphanumériques	
+         </td>
+          <td width="121"></td>
+           </tr>
+            <tr>
+         <td width="121"> <strong>lang</strong> </td>
+         <td width="484">Langue derestitution des
+         noms et adresses
+         des points de retrait</td>
+         <td width="484">2 caractères
+         alphanumériques
+         Valeurs possibles :
+         cf annexe Inter : Liste des
+         pays éligibles
+         La langue par défaut est
+         la langue locale
+         </td>
+          <td width="121"></td>
+           </tr>
+           <tr>
+         <td width="121"> <strong>optionInter</strong> </td>
+         <td width="484">Permet de filtrer ou non les points situés à l’étrangerDoit être cohérent avec le code pays (countryCode)</td>
+         <td width="484">1 caractère numérique <br>
+                         Valeurs possibles : <br>
+                         0 pour avoir des points en France uniquement (valeur par défaut)<br>
+                         1 pour des points à l’international uniquement<br>
+                         NB : Contrairement aux documents techniques précédents, la valeur 1 n’intègre plus les points « France ».
+         <td width="121">N</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>origin</strong> </td>
+         <td width="484">Permet d’identifier les cas d’utilisation du service</td>
+         <td width="484">Alpha<br>
+                         Valeurs possibles :<br>
+                         Vide -> usage du WS <br>
+                         ‘CMS’ -> usage CMS<br>
+                         ‘WIDGET’ -> usage widget.<br>
+          <td width="121">N</td>
+           </tr>
+         </tbody>
+         </table>
+         
+         
+         
+     <strong>*Cas particulier de l’utilisation du Web Service par les plateformes d’échanges entre particuliers :</strong>
+     
+     Dans ce cas précis, le processus de vente implique trois acteurs :
+     - Le chargeur (site Internet d’échanges),
+     - Un vendeur (client du chargeur), 
+     - Un acheteur (lui aussi client du chargeur).  
+     
+     La « shipping date » correspond ici à la date prévisionnelle d’envoi du colis par le vendeur. Elle permet d’identifier la disponibilité ou non d’un Point de Retrait. 
+     Cette date est fonction de la date de commande par l’acheteur, et tient compte de différents délais relatifs à la transaction acheteur/vendeur : éventuel délai de 
+     confirmation de vente par le vendeur, délai d’impression de l’étiquette, délai de dépôt du colis en Bureau de Poste, etc.
+     
+     En mode normal le web service prend en compte le nom de la ville et l’adresse. Il affiche jusqu’à 20 points de retrait (bureau de poste et relais commerçant en 
+     fonction du filtre appliqué).
+     
+     S’il ne trouve pas le couple adresse ville, il effectue une recherche avec le code postal et l’adresse. S’il n’en trouve toujours pas, il effectue une recherche avec 
+     le barycentre du code postal.
+     
+     En mode dit « dégradé »,  le web service effectue une recherche avec le barycentre du code postal et renvoie seulement 10 points de retrait au maximum.
+     
+     ### II.5.2 Réponse de findRDVPointRetraitAcheminement
+     
+     C’est une structure SOAP du type rdvPointRetraitAcheminementResult.
+     
+     #### II.5.2.1 Structure rdvPointRetraitAcheminementResult
+     
+     <table width="100%">
+     <tbody>
+     <tr style="background-color: #e89236;">
+     <td width="121"> <strong>Paramètre</strong> </td>
+     <td width="484"> <strong>Signification</strong> </td>
+     <td width="484"> <strong>Type</strong> </td>
+     <td width="484"> <strong>Commentaires</strong> </td>
+     </tr>
+     <tr>
+     <td width="121"> <strong>errorCode</strong> </td>
+     <td width="484"> Code de l’erreur </td>
+     <td width="484">Code de l’erreur</td>
+     <td width="121">Voir paragraphe III Codes erreurs</td>
+     </tr>
+     <tr>
+     <td width="121"> <strong>errorMessage</strong> </td>
+     <td width="484"> Libellé de l’erreur </td>
+     <td width="484">xs:string</td>
+     <td width="121">Voir paragraphe III Codes erreurs</td>
+     </tr>
+     <tr>
+     <td width="121"> <strong>listPointRetraitA cheminement</strong> </td>
+     <td width="484"> Liste des points de retrait	 </td>
+     <td width="484">tns:pointRetrait Acheminement</td>
+     <td width="121">Voir paragraphe suivant</td>
+     </tr>
+     <tr>
+     <td width="121"> <strong>qualiteReponse</strong> </td>
+     <td width="484"> Indique la qualité de
+     la réponse obtenue
+     par rapport à
+     l'adresse de livraison
+     fournie dans la
+     requête pour la
+     restitution des points
+     de retrait
+     Plus les paramètres
+     d’entrée sont précis,
+     plus la qualité de la
+     recherche est
+     grande.	 </td>
+     <td width="484">xs:int</td>
+     <td width="121">Valeurs possibles :
+     0 : mauvaise qualité,
+     aucun résultat
+     1 : qualité moyenne, La
+     recherche est basée sur
+     une reconnaissance à la
+     ville ou au code postal
+     2 : qualité excellente. La
+     recherche est basée sur
+     une reconnaissance à
+     l’adresse dans la ville</td>
+     </tr>
+      <tr>
+     <td width="121"> <strong>wsRequestId</strong> </td>
+     <td width="484"> Identifiant unique de
+     la requête généré par
+     le Web Service </td>
+     <td width="484">xs:string</td>
+     <td width="121">64 caractères
+     alphanumériques</td>
+     </tr>
+     <tr>
+     <td width="121"> <strong>rdv</strong> </td>
+     <td width="484"> ne pas tenir compte</td>
+     <td width="484">Boolean</td>
+     <td width="121">« False » par défaut</td>
+     </tr>
+     </tbody>
+     </table>
+     
+     #### II.5.2.2 Structure pointRetraitAcheminement
+     
+     <table width="100%">
+      <tbody>
+      <tr style="background-color: #e89236;">
+         <td width="121"> <strong>Paramètre</strong> </td>
+         <td width="484"> <strong>Signification</strong> </td>
+         <td width="484"> <strong>Type</strong> </td>
+         <td width="484"> <strong>Commentaires</strong> </td>
+         
+      </tr>
+      <tr>
+         <td width="121"> <strong>accesPersonneMobi
+         liteReduite</strong> </td>
+         <td width="484"> Indique si le point
+         est accessible aux
+         personnes à
+         mobilité réduite </td>
+         <td width="484">xs:boolean</td>
+         <td width="121">Valeurs
+         possibles : true pour oui et
+         false pour non
+         Spécifique aux Points
+         Retrait Bureaux de poste
+         (BPR) en France.
+         Peut-être affiché sous
+         forme de logo (disponible dans la charte web
+         Colissimo – voir à la fin de
+         ce paragraphe II.5.2.2) ou
+         de libellé. Peut également
+         être utilisé à des fins de
+         filtre lors de l’affichage sur
+         le site marchand.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>adresse1</strong> </td>
+         <td width="484"> Numéro et libellé
+         de la voie du point		 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 38
+         caractères.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>adresse2</strong> </td>
+         <td width="484"> Complément
+         d’adresse du point			 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 38
+         caractères.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>adresse3</strong> </td>
+         <td width="484"> Lieu-dit du point		 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 38
+         caractères.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>codePostale</strong> </td>
+         <td width="484"> Code postale du point retrait		 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 5
+         caractères.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>congesPartiel</strong> </td>
+         <td width="484"> Flag indiquant une
+         fermeture
+         partielle du Point
+         Retrait sur le délai
+         de garde du colis		 </td>
+         <td width="484">xs:boolean</td>
+         <td width="121">Valeurs possibles :
+         true pour oui et false pour
+         non
+         Permet d’identifier les
+         points de retrait ouverts au
+         moins 7 jours ouvrés (du
+         lundi au vendredi) durant le
+         délai de garde du colis.
+         Ces points de retrait
+         doivent être présentés et
+         peuvent être sélectionnés
+         par l’acheteur.
+         caractères.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>congesTotal</strong> </td>
+         <td width="484"> Flag indiquant une
+         fermeture totale
+         du Point Retrait
+         durant le délai de
+         garde du colis		 </td>
+         <td width="484">xs:boolean</td>
+         <td width="121">Valeurs possibles :
+         true pour oui et false pour
+         non
+         Permet d’identifier les
+         points de retrait fermés
+         durant la période de retrait
+         du colis.
+         Ces points doivent être
+         présentés mais le
+         chargeur doit empêcher
+         leur sélection par le
+         client.
+         Un traitement
+         différenciateur est
+         souhaitable (en grisé ou
+         information « en
+         congés »par exemple)</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>coordGeolocalisatio
+         nLatitude	</strong> </td>
+         <td width="484"> Latitude du point
+         (norme WGS84
+         métrique)		 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 10
+         caractères
+         Ces coordonnées
+         permettent la localisation
+         du Point Retrait sur un
+         plan.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>coordGeolocalisationLongitude</strong> </td>
+         <td width="484"> Longitude du
+         point (norme
+         WGS84 métrique)		 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 10
+         caractères
+         Ces coordonnées
+         permettent la localisation
+         du Point Retrait sur un
+         plan.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>distanceEnMetre</strong> </td>
+         <td width="484"> Distance enmètres par
+         rapport à
+         l’adresse fournie
+         en entrée		 </td>
+         <td width="484">xs:int</td>
+         <td width="121">Numérique sur 5 caractères
+         caractères.</td>
+         </tr>
+          <tr>
+         <td width="121"> <strong>horairesOuverture
+         Lundi	</strong> </td>
+         <td width="484"> Horaires
+         d’ouverture
+         durant la journée,
+         au format :
+         nn:nn-nn:nn
+         nn:nn-nn:nn	 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 23
+         caractères
+         Une plage horaire non
+         renseignée équivaut à la
+         valeur « 00:00-00:00
+         00:00-00:00 », cette valeur
+         ne doit pas être affichée.
+         Une plage horaire sans
+         coupure dans la journée a
+         la valeur 0 pour la plage de
+         l’après-midi (ex : 09:00-
+         17:30 00:00-00:00)
+         Les informations « 00:00-
+         00:00 » ne doivent pas être
+         affichées</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>horairesOuverture
+         Mardi	</strong> </td>
+         <td width="484"> Horaires
+         d’ouverture
+         durant la journée,
+         au format :
+         nn:nn-nn:nn
+         nn:nn-nn:nn	 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 23
+         caractères
+         Une plage horaire non
+         renseignée équivaut à la
+         valeur « 00:00-00:00
+         00:00-00:00 », cette valeur
+         ne doit pas être affichée.
+         Une plage horaire sans
+         coupure dans la journée a
+         la valeur 0 pour la plage de
+         l’après-midi (ex : 09:00-
+         17:30 00:00-00:00)
+         Les informations « 00:00-
+         00:00 » ne doivent pas être
+         affichées</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>horairesOuverture
+         Mercredi	</strong> </td>
+         <td width="484"> Horaires
+         d’ouverture
+         durant la journée,
+         au format :
+         nn:nn-nn:nn
+         nn:nn-nn:nn	 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 23
+         caractères
+         Une plage horaire non
+         renseignée équivaut à la
+         valeur « 00:00-00:00
+         00:00-00:00 », cette valeur
+         ne doit pas être affichée.
+         Une plage horaire sans
+         coupure dans la journée a
+         la valeur 0 pour la plage de
+         l’après-midi (ex : 09:00-
+         17:30 00:00-00:00)
+         Les informations « 00:00-
+         00:00 » ne doivent pas être
+         affichées</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>horairesOuverture
+         Jeudi	</strong> </td>
+         <td width="484"> Horaires
+         d’ouverture
+         durant la journée,
+         au format :
+         nn:nn-nn:nn
+         nn:nn-nn:nn	 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 23
+         caractères
+         Une plage horaire non
+         renseignée équivaut à la
+         valeur « 00:00-00:00
+         00:00-00:00 », cette valeur
+         ne doit pas être affichée.
+         Une plage horaire sans
+         coupure dans la journée a
+         la valeur 0 pour la plage de
+         l’après-midi (ex : 09:00-
+         17:30 00:00-00:00)
+         Les informations « 00:00-
+         00:00 » ne doivent pas être
+         affichées</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>horairesOuverture
+         Vendredi	</strong> </td>
+         <td width="484"> Horaires
+         d’ouverture
+         durant la journée,
+         au format :
+         nn:nn-nn:nn
+         nn:nn-nn:nn	 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 23
+         caractères
+         Une plage horaire non
+         renseignée équivaut à la
+         valeur « 00:00-00:00
+         00:00-00:00 », cette valeur
+         ne doit pas être affichée.
+         Une plage horaire sans
+         coupure dans la journée a
+         la valeur 0 pour la plage de
+         l’après-midi (ex : 09:00-
+         17:30 00:00-00:00)
+         Les informations « 00:00-
+         00:00 » ne doivent pas être
+         affichées</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>horairesOuverture
+         Samedi	</strong> </td>
+         <td width="484"> Horaires
+         d’ouverture
+         durant la journée,
+         au format :
+         nn:nn-nn:nn
+         nn:nn-nn:nn	 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 23
+         caractères
+         Une plage horaire non
+         renseignée équivaut à la
+         valeur « 00:00-00:00
+         00:00-00:00 », cette valeur
+         ne doit pas être affichée.
+         Une plage horaire sans
+         coupure dans la journée a
+         la valeur 0 pour la plage de
+         l’après-midi (ex : 09:00-
+         17:30 00:00-00:00)
+         Les informations « 00:00-
+         00:00 » ne doivent pas être
+         affichées</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>horairesOuverture
+         Dimanche	</strong> </td>
+         <td width="484"> Horaires
+         d’ouverture
+         durant la journée,
+         au format :
+         nn:nn-nn:nn
+         nn:nn-nn:nn	 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 23
+         caractères
+         Une plage horaire non
+         renseignée équivaut à la
+         valeur « 00:00-00:00
+         00:00-00:00 », cette valeur
+         ne doit pas être affichée.
+         Une plage horaire sans
+         coupure dans la journée a
+         la valeur 0 pour la plage de
+         l’après-midi (ex : 09:00-
+         17:30 00:00-00:00)
+         Les informations « 00:00-
+         00:00 » ne doivent pas être
+         affichées</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>identifiant</strong> </td>
+         <td width="484"> Identifiant du
+         Point Retrait
+         Référence La
+         Poste - Colissimo
+         du point
+         (identifiant
+         unique).		 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 38
+         caractères.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>indiceDeLocalisation</strong> </td>
+         <td width="484"> Indice permettant
+         de localiser le
+         point. </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 70
+         caractères
+         L’indice de localisation est
+         une donnée spécifique aux
+         Points Retraits.
+         Exemple : Près de la gare
+         Il est fortement conseillé
+         d’afficher sur votre site
+         marchand tous les champs
+         d’adresse ainsi que l’indice
+         de localisation du Point
+         Retrait. </td>
+         </tr>
+          <tr>
+         <td width="121"> <strong>listeConges</strong> </td>
+         <td width="484"> <strong></strong> </td>
+         <td width="484"> tns:conges </td>
+         <td width="484"> <strong>Voir paragraphe II.5.2.3</strong> </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>localite</strong> </td>
+         <td width="484"> Commune du point	 </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 32 caractères </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>nom</strong> </td>
+         <td width="484"> Libellé du point </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 50 caractères </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>periodeActiviteHoraireDeb	</strong> </td>
+         <td width="484"> Date de début de
+         la période durant
+         laquelle
+         s’appliquent les
+         horaires	 </td>
+         <td width="484"> <strong>xs:string</strong> </td>
+         <td width="484"> Alphanumérique sur 5
+         caractères (JJ/MM) </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>poidsMaxi	</strong> </td>
+         <td width="484"> Poids maximum 
+         autorisé par colis 
+         par le point	 </td>
+         <td width="484"> xs:int </td>
+         <td width="484"> Numérique sur 2 caractères
+         Exprimé en Kilogrammes
+         important :
+         Les
+         points de type ACP et
+         CDI acceptent les colis d’un
+         poids allant jusqu’à 30 kg et 200 cm 
+         </td>
+         </tr>
+          <tr>
+         <td width="121"> <strong>typeDePoint	</strong> </td>
+         <td width="484"> Type de point </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 3
+         caractères
+         Valeurs possibles :
+         A2P, BPR, CDI, ACP, BDP,
+         ou CMT (voir détails en
+         annexe Inter : Liste des
+         pays éligibles) 
+         </td>
+         </tr>
+          <tr>
+         <td width="121"> <strong>codePays	</strong> </td>
+         <td width="484"> Code pays du
+         Point Retrait </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 2
+         caractères
+         Valeurs possibles : FR (par
+         défaut) ou code du pays en
+         annexe Inter : Liste des
+         pays éligibles
+         </td>
+         </tr>
+          <tr>
+         <td width="121"> <strong>langue	</strong> </td>
+         <td width="484"> Langue des
+         libellés du Point
+         Retrait </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 2
+         caractères
+         Valeurs possibles : FR (par
+         défaut) ou cf annexe Inter :
+         Liste des pays éligibles
+         </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>libellePays	</strong> </td>
+         <td width="484"> Libellé du pays
+         du point	 </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Est retourné en français ou
+         néerlandais en fonction de
+         la langue demandée en
+         entrée dans le champ lang
+         Si le point n’existe pas dans
+         la langue demandée, il ne
+         sera pas retourné
+         </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>loanOfHandlingTool	</strong> </td>
+         <td width="484"> Indique si le point
+         dispose d’outils
+         de manutention	 </td>
+         <td width="484"> Boolean </td>
+         <td width="484"> Valeurs
+         possibles : true pour oui et
+         false pour non
+         </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>parking	</strong> </td>
+         <td width="484"> Indique si le point
+         dispose d’un
+         parking	 </td>
+         <td width="484"> Boolean </td>
+         <td width="484"> Valeur à false par défaut.
+         Prendre en compte
+         l’information en annexe
+         Types de points
+         retournésV.2
+         </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>reseau	</strong> </td>
+         <td width="484"> Identifiant
+         technique du
+         réseau auquel le
+         point appartient </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 3
+         caractères
+         R01 à R11 pour les points
+         français
+         Pour l’inter, voir valeurs
+         possibles en annexe Inter :
+         Codes réseaux
+         </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>distributionSort	</strong> </td>
+         <td width="484" rowspan="3" > Données d’acheminement nécessaires pour alimenter la solution d’étiquetage concernant les produits avec Point Retrait</td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 10
+         caractères
+         </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>lotAcheminement	</strong> </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 10
+         caractères
+         </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>versionPlanTri	</strong> </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 2
+         caractères
+         </td>
+         </tr>
+         </tbody>
+         </table>
+         
+    1: Dimension en développé = longueur + largeur + hauteur 
+         
+         
+     #### II.5.2.3 Structure Congés     
+     
+     <table width="100%">
+        <tbody>
+           <tr style="background-color: #e89236;">
+           <td width="121"> <strong>Paramètre</strong> </td>
+           <td width="484"> <strong>Signification</strong> </td>
+           <td width="484"> <strong>Type</strong> </td>
+           <td width="484"> <strong>Commentaires</strong> </td>
+           </tr>
+           <tr>
+           <td width="121"> <strong>calendarDeDebut</strong> </td>
+           <td width="484"> Date de début descongés </td>
+           <td width="484">xs:dateTime</td>
+           <td width="121">Date & Heure GMT auformat 
+           ISO-8601 (YYYYMMDDTHH:MM:SS.SSSZ)</td>
+           </tr>
+           <tr>
+           <td width="121"> <strong>calendarDeFin</strong> </td>
+           <td width="484"> Date de fin des congés </td>
+           <td width="484">xs:dateTime</td>
+           <td width="121">Date & Heure GMT au
+           format ISO-8601 (YYYYMMDDTHH:
+           MM:SS.SSSZ)</td>
+           </tr>
+           <tr>
+           <td width="121"> <strong>numero</strong> </td>
+           <td width="484"> Numéro d’ordre de la
+           période de congés sur
+           une échelle de temps
+           Il peut y avoir de 0 à n
+           périodes de congés par
+           point </td>
+           <td width="484">xs:int</td>
+           <td width="121">Numérique sur 1
+           caractère</td>
+           </tr>
+           </tbody>
+           </table>
+           
+           
+      #### II.5.2.4 Exemples d’enveloppes SOAP     
+       
+     Exemple d’enveloppe de requête SOAP pour la méthode findRDVPointRetraitAcheminement : 
+       
+                 <v2:findRDVPointRetraitAcheminement>
+                 <apikey>MY_API_KEY</apikey>
+                 <codTiersPourPartenaire></codTiersPourPartenaire>
+                 <address>62 Camille Desmoulins</address>
+                 <zipCode>92130</zipCode>
+                 <city>Issy-Les-Moulineaux</city>
+                 <countryCode>FR</countryCode>
+                 <weight>1</weight>
+                 <shippingDate>17/10/2018</shippingDate>
+                 <filterRelay></filterRelay>
+                 <requestId></requestId>
+                 <lang>FR</lang>
+                 <optionInter></optionInter>
+                 </v2:findRDVPointRetraitAcheminement>
+ 
+           
+     Exemple d’enveloppe de retour :   
+          
+                 <ns2:findRDVPointRetraitAcheminementResponse xmlns:ns2="http://v2.pointretrait.geopost.com/">
+                 <return>
+                 <errorCode>0</errorCode>
+                 <errorMessage>Code retour OK</errorMessage>
+                 <listePointRetraitAcheminement>
+                 <accesPersonneMobiliteReduite>false</accesPersonneMobiliteReduite>
+                 <adresse1>60 RUE CAMILLE DESMOULINS</adresse1>
+                 <adresse2>ZAC FORUM DE SEINE IMMEUBLE APHELION</adresse2>
+                 <adresse3/>
+                 <codePostal>92130</codePostal>
+                 <congesPartiel>false</congesPartiel>
+                 <congesTotal>false</congesTotal>
+                 <coordGeolocalisationLatitude>48.830093</coordGeolocalisationLatitude>
+                 <coordGeolocalisationLongitude>2.265194</coordGeolocalisationLongitude>
+                 <distanceEnMetre>26</distanceEnMetre>
+                 <horairesOuvertureDimanche>00:00-00:00 00:00-00:00</horairesOuvertureDimanche>
+                 <horairesOuvertureJeudi>10:00-18:00 00:00-00:00</horairesOuvertureJeudi>
+                 <horairesOuvertureLundi>10:00-18:00 00:00-00:00</horairesOuvertureLundi>
+                 <horairesOuvertureMardi>10:00-18:00 00:00-00:00</horairesOuvertureMardi>
+                 <horairesOuvertureMercredi>10:00-18:00 00:00-00:00</horairesOuvertureMercredi>
+                 <horairesOuvertureSamedi>10:00-12:30 00:00-00:00</horairesOuvertureSamedi>
+                 <horairesOuvertureVendredi>10:00-18:00 00:00-00:00</horairesOuvertureVendredi>
+                 <identifiant>923560</identifiant>
+                 <indiceDeLocalisation/>
+                 <listeConges>
+                 <calendarDeDebut>2019-01-01T00:00:00+01:00</calendarDeDebut>
+                 <calendarDeFin>2019-01-01T00:00:00+01:00</calendarDeFin>
+                 <numero>1</numero>
+                 </listeConges>
+                 <localite>ISSY LES MOULINEAUX</localite>
+                 <nom>BUREAU DE POSTE ISSY FORUM SEINE BP</nom>
+                 <periodeActiviteHoraireDeb>08/10</periodeActiviteHoraireDeb>
+                 <periodeActiviteHoraireFin>31/12</periodeActiviteHoraireFin>
+                 <poidsMaxi>20000</poidsMaxi>
+                 <typeDePoint>BPR</typeDePoint>
+                 <codePays>FR</codePays>
+                 <langue>FR</langue>
+                 <libellePays>FRANCE</libellePays>
+                 <loanOfHandlingTool>false</loanOfHandlingTool>
+                 <parking>false</parking>
+                 <reseau>R01</reseau>
+                 <distributionSort/>
+                 <lotAcheminement/>
+                 <versionPlanTri/>
+                 </listePointRetraitAcheminement>
+                 <listePointRetraitAcheminement>
+                 <accesPersonneMobiliteReduite>false</accesPersonneMobiliteReduite>
+                 <adresse1>8 RUE AUGUSTE GERVAIS</adresse1>
+                 <adresse2/>
+                 <adresse3/>
+                 <codePostal>92130</codePostal>
+                 <congesPartiel>false</congesPartiel>
+                 <congesTotal>false</congesTotal>
+                 <coordGeolocalisationLatitude>48.823</coordGeolocalisationLatitude>
+                 <coordGeolocalisationLongitude>2.273</coordGeolocalisationLongitude>
+                 <distanceEnMetre>976</distanceEnMetre>
+                 <horairesOuvertureDimanche>00:00-00:00 00:00-00:00</horairesOuvertureDimanche>
+                 <horairesOuvertureJeudi>10:30-13:00 14:30-19:00</horairesOuvertureJeudi>
+                 <horairesOuvertureLundi>00:00-00:00 00:00-00:00</horairesOuvertureLundi>
+                 <horairesOuvertureMardi>10:30-13:00 14:30-19:00</horairesOuvertureMardi>
+                 <horairesOuvertureMercredi>10:30-13:00 14:30-19:00</horairesOuvertureMercredi>
+                 <horairesOuvertureSamedi>10:00-16:00 00:00-00:00</horairesOuvertureSamedi>
+                 <horairesOuvertureVendredi>10:30-13:00 14:30-19:00</horairesOuvertureVendredi>
+                 <identifiant>107181</identifiant>
+                 <indiceDeLocalisation/>
+                 <localite>ISSY LES MOULINEAUX</localite>
+                 <nom>LAINE PASSION TRICOT</nom>
+                 <periodeActiviteHoraireDeb>01/01</periodeActiviteHoraireDeb>
+                 <periodeActiviteHoraireFin>31/12</periodeActiviteHoraireFin>
+                 <poidsMaxi>20000</poidsMaxi>
+                 <typeDePoint>A2P</typeDePoint>
+                 <codePays>FR</codePays>
+                 <langue>FR</langue>
+                 <libellePays>FRANCE</libellePays>
+                 <loanOfHandlingTool>false</loanOfHandlingTool>
+                 <parking>false</parking>
+                 <reseau>R03</reseau>
+                 <distributionSort>94T01</distributionSort>
+                 <lotAcheminement>RGS0</lotAcheminement>
+                 <versionPlanTri>8</versionPlanTri>
+                 </listePointRetraitAcheminement>
+                 <listePointRetraitAcheminement>
+                 <accesPersonneMobiliteReduite>false</accesPersonneMobiliteReduite>
+                 <adresse1>106 AVENUE FELIX FAURE</adresse1>
+                 <adresse2/>
+                 <adresse3/>
+                 <codePostal>75015</codePostal>
+                 <congesPartiel>false</congesPartiel>
+                 <congesTotal>false</congesTotal>
+                 <coordGeolocalisationLatitude>48.839</coordGeolocalisationLatitude>
+                 <coordGeolocalisationLongitude>2.282</coordGeolocalisationLongitude>
+                 <distanceEnMetre>1545</distanceEnMetre>
+                 <horairesOuvertureDimanche>00:00-00:00 00:00-00:00</horairesOuvertureDimanche>
+                 <horairesOuvertureJeudi>10:00-18:30 00:00-00:00</horairesOuvertureJeudi>
+                 <horairesOuvertureLundi>00:00-00:00 00:00-00:00</horairesOuvertureLundi>
+                 <horairesOuvertureMardi>10:00-18:30 00:00-00:00</horairesOuvertureMardi>
+                 <horairesOuvertureMercredi>10:00-18:30 00:00-00:00</horairesOuvertureMercredi>
+                 <horairesOuvertureSamedi>10:00-18:30 00:00-00:00</horairesOuvertureSamedi>
+                 <horairesOuvertureVendredi>10:00-18:30 00:00-00:00</horairesOuvertureVendredi>
+                 <identifiant>106543</identifiant>
+                 <indiceDeLocalisation/>
+                 <localite>PARIS</localite>
+                 <nom>ADRESSE MAC</nom>
+                 <periodeActiviteHoraireDeb>01/01</periodeActiviteHoraireDeb>
+                 <periodeActiviteHoraireFin>31/12</periodeActiviteHoraireFin>
+                 <poidsMaxi>20000</poidsMaxi>
+                 <typeDePoint>A2P</typeDePoint>
+                 <codePays>FR</codePays>
+                 <langue>FR</langue>
+                 <libellePays>FRANCE</libellePays>
+                 <loanOfHandlingTool>false</loanOfHandlingTool>
+                 <parking>false</parking>
+                 <reseau>R03</reseau>
+                 <distributionSort>97V00</distributionSort>
+                 <lotAcheminement>BGR0</lotAcheminement>
+                 <versionPlanTri>8</versionPlanTri>
+                 </listePointRetraitAcheminement>
+                 <qualiteReponse>2</qualiteReponse>
+                 <wsRequestId>186c1ca3a478d69b8ecd21cdaf947156104c6014ea82af223ae1dd8a30f138cc</wsRequestId>
+                 <rdv>false</rdv>
+                 </return>
+                 </ns2:findRDVPointRetraitAcheminementResponse>
+                           
+
+      #### II.5.2.5 Exemples de requête REST 
+      
+      
+             {
+              "apiKey" : "5261E9618298B46D64BA6975CAD624XX",
+              "address": "Tweede Helmersstraat 4, Oud-West",
+               "zipCode": "1054CH",
+               "city": "AMSTERDAM",
+               "countryCode": "NL",
+               "weight": "1",
+               "shippingDate": "25/07/2025",
+               "filterRelay": "1",
+               "optionInter":"1",
+               "requestId": "Test",
+               "lang": "FR"
+             } 
+
+      <strong>Exemple de retour JSON : </strong>
+      
+            {
+             "errorCode":0,
+             "errorMessage":"Code retour OK",
+             "qualiteReponse":2,
+             "wsRequestId":"018b6fbf838a6f6fddb5791b5953b6d249f2788f7a739737c53cbfc9b0ba14b0",
+             "listePointRetraitAcheminement":[
+                  {
+                   "identifiant":"238547",
+                    "nom":"THE GENIUS AMSTERDAM",
+                    "adresse1":"30H KINKERSTRAAT",
+                    "adresse2":"",
+                    "adresse3":"",
+                    "codePostal":"1053DV",
+                    "localite":"AMSTERDAM",
+                    "indiceDeLocalisation":"",
+                    "coordGeolocalisationLatitude":"52.3681260",
+                    "coordGeolocalisationLongitude":"4.87487800",
+                    "accesPersonneMobiliteReduite":true,
+                    "horairesOuvertureLundi":"10:00-16:30 00:00-00:00",
+                    "horairesOuvertureMardi":"10:00-16:30 00:00-00:00",
+                    "horairesOuvertureMercredi":"10:00-16:30 00:00-00:00",
+                    "horairesOuvertureJeudi":"10:00-16:30 00:00-00:00",
+                    "horairesOuvertureVendredi":"10:00-16:30 00:00-00:00",
+                    "horairesOuvertureSamedi":"10:00-16:30 00:00-00:00",
+                    "horairesOuvertureDimanche":"10:00-16:30 00:00-00:00",
+                    "periodeActiviteHoraireDeb":"01/01",
+                    "periodeActiviteHoraireFin":"31/12",
+                    "listeConges":[            
+                      ],
+                    "typeDePoint":"CMT",
+                    "poidsMaxi":20000,
+                    "distanceEnMetre":416,
+                    "congesPartiel":false,
+                    "congesTotal":false,
+                    "reseau":"R03",
+                    "codePays":"NL",
+                    "libellePays":"NEDERLAND",
+                    "langue":"NL",
+                    "parking":false,
+                    "loanOfHandlingTool":false,
+                    "distributionSort":"",
+                    "lotAcheminement":"",
+                    "versionPlanTri":""
+                   },
+                   {
+                    "identifiant":"229830",
+                    "nom":"DE DENNENBOOM",
+                    "adresse1":"84H NIEUWEZIJDS VOORBURGWAL",
+                    "adresse2":"",
+                    "adresse3":"",
+                    "codePostal":"1012SE",
+                    "localite":"AMSTERDAM",
+                    "indiceDeLocalisation":"",
+                    "coordGeolocalisationLatitude":"52.3759582",
+                    "coordGeolocalisationLongitude":"4.89276230",
+                    "accesPersonneMobiliteReduite":false,
+                    "horairesOuvertureLundi":"00:00-00:00 00:00-00:00",
+                    "horairesOuvertureMardi":"09:00-19:00 00:00-00:00",
+                    "horairesOuvertureMercredi":"10:30-18:30 00:00-00:00",
+                    "horairesOuvertureJeudi":"09:00-18:00 00:00-00:00",
+                    "horairesOuvertureVendredi":"09:00-18:00 00:00-00:00",
+                    "horairesOuvertureSamedi":"11:00-17:00 00:00-00:00",
+                    "horairesOuvertureDimanche":"11:00-16:00 00:00-00:00",
+                    "periodeActiviteHoraireDeb":"01/01",
+                    "periodeActiviteHoraireFin":"31/12",
+                    "listeConges":[            
+                      ],
+                    "typeDePoint":"CMT",
+                    "poidsMaxi":20000,
+                    "distanceEnMetre":1551,
+                    "congesPartiel":false,
+                    "congesTotal":false,
+                    "reseau":"R03",
+                    "codePays":"NL",
+                    "libellePays":"NEDERLAND",
+                    "langue":"NL",
+                    "parking":false,
+                    "loanOfHandlingTool":false,
+                    "distributionSort":"",
+                    "lotAcheminement":"",
+                    "versionPlanTri":""
+                     },
+                     "………."
+                     ],
+                     "rdv":false
+                 }
+              
+           
+      ##  II.6 Méthode findPointRetraitAcheminementByID
+      
+      
+      ###  II.6.1 Paramètres en entrée via SOAP
+      
+      
+      <table width="100%">
+      <tbody>
+      <tr style="background-color: #e89236;">
+         <td width="121"> <strong>Paramètre</strong> </td>
+         <td width="484"> <strong>Signification</strong> </td>
+         <td width="484"> <strong>Type</strong> </td>
+         <td width="484"> <strong>Condition</strong> </td>
+         
+      </tr>
+      <tr>
+         <td width="121"> <strong>apikey</strong> </td>
+         <td width="484"> Identifiant du client partenaire </td>
+         <td width="484">32 caractères Alphanumérique Il s’agit d’une clé utilisateur généré par le client pour son partenaire qui lui permet de disposer de la délégation de droits sur plusieurs comptes
+         (création d’un compte utilisateur avancé depuis la Colissimo Box par le client)
+         </td>
+         <td width="121">O</td>
+      </tr>
+      <tr>
+         <td width="121"> <strong>codTiersPourPartenaire</strong> </td>
+         <td width="484"> Identifiant du client </td>
+         <td width="484">6 caractères numériques (NNNNNN)</td>
+          <td width="121">C</td>
+      </tr>
+      <tr>
+         <td width="121"> <strong>id</strong> </td>
+         <td width="484">Identifiant du Point Retrait Référence La Poste - Colissimo du point (identifiant unique).</td>
+         <td width="484">Numérique sur 6 caractères Cette identifiant doit être importé dans votre solution d’étiquetage.</td>
+         <td width="121">O</td>
+      </tr>
+      <tr>
+         <td width="121"> <strong>date *</strong> </td>
+         <td width="484">Date estimée de l’envoi Correspond à la date de commande plus le délai de préparation de la commande en jours ouvrés</td>
+         <td width="484">10 caractères alphanumériques (JJ/MM/AAAA)</td>
+         <td width="121">O</td>
+      </tr>
+      <tr>
+         <td width="121"> <strong>weight</strong> </td>
+         <td width="484">Poids du colis</td>
+         <td width="484">5 caractères numériques (NNNNNN) Exprimé en grammes</td>
+         <td width="121"></td>
+      </tr>
+      <tr>
+         <td width="121"> <strong>filterRelay</strong> </td>
+         <td width="484">Permet de filtrer les points commerces de proximité 0 = le filtre est appliqué, les points ne sont pas proposés 1= le filtre n’est pas appliqué, les points sont proposés</td>
+         <td width="484">1 caractère alphanumérique Valeurs possibles 0 ou 1</td>
+         <td width="121">O</td>
+      </tr>
+      <tr>
+         <td width="121"> <strong>reseau</strong> </td>
+         <td width="484">Identifiant technique du réseau auquel le point appartient</td>
+         <td width="484">3 caractères alphanumériques Laisser vide pour les points français, Pour les points internationaux, voir annexe Inter : Codes réseaux</td>
+         <td width="121">N</td>
+      </tr>
+      <tr>
+         <td width="121"> <strong>langue</strong> </td>
+         <td width="484">Langue de restitution des noms et adresses des points de retrait</td>
+         <td width="484">2 caractères alphanumériques Valeurs possibles : FR pour Français (valeur par défaut) Pour l’inter, cf annexe Inter : Liste des pays</td>
+         <td width="121">N</td>
+      </tr>
+         </tbody>
+         </table>
+              
+         
+      <strong>*Cas particulier de l’utilisation du WebService par les plateformes d’échanges entre particuliers :</strong>
+         
+       Dans ce cas précis, le processus de vente implique trois acteurs :
+         
+       - le chargeur (site Internet d’échanges),
+       - Nn vendeur (client du chargeur),
+       - Un acheteur (lui aussi client du chargeur).
+         
+       La « date » correspond ici à la date prévisionnelle d’envoi du colis par le vendeur. Elle permet
+       d’identifier la disponibilité ou non d’un Point Retrait. Cette date est fonction de la date de
+       commande par l’acheteur, et tient compte de différents délais relatifs à la transaction
+       acheteur/vendeur : éventuel délai de confirmation de vente par le vendeur, délai d’impression
+       de l’étiquette, délai de dépôt du colis en Bureau de Poste, etc.
+         
+         
+         
+         
+      ###  II.6.2 Méthode findPointRetraitAcheminementByID
+      
+      C’est une structure SOAP du type <strong>pointRetraitAcheminementByIDResult.</strong>
+      
+      ####  II.6.2.1 Structure pointRetraitAcheminementByIDResult
+      
+      <table width="100%">
+     <tbody>
+     <tr style="background-color: #e89236;">
+     <td width="121"> <strong>Paramètre</strong> </td>
+     <td width="484"> <strong>Signification</strong> </td>
+     <td width="121"> <strong>Type</strong> </td>
+     <td width="484"> <strong>Commentaires</strong> </td>
+     </tr>
+     <tr>
+     <td width="121"> <strong>errorCode</strong> </td>
+     <td width="484"> Code de l’erreur </td>
+     <td width="121">xs:int</td>
+     <td width="484">Voir paragraphe III Codes erreurs</td>
+     </tr>
+     <tr>
+     <td width="121"> <strong>errorMessage</strong> </td>
+     <td width="484"> Libellé de l’erreur </td>
+     <td width="121">xs:string</td>
+     <td width="484">Voir paragraphe III Codes erreurs</td>
+     </tr>
+     <tr>
+     <td width="121"> <strong>pointRetraitAcheminement</strong> </td>
+     <td width="484">Information concernant le Point Retrait recherché</td>
+     <td width="121">tns:pointRetraitAcheminement</td>
+     <td width="484">Voir paragraphe II.6.2.2 Structure pointRetraitAcheminement</td>
+     </tr>
+     </tbody>
+     </table>
+         
+      
+      #### II.6.2.2 Structure pointRetraitAcheminement
+      
+      <table width="100%">
+      <tbody>
+      <tr style="background-color: #e89236;">
+         <td width="121"> <strong>Paramètre</strong> </td>
+         <td width="484"> <strong>Signification</strong> </td>
+         <td width="484"> <strong>Type</strong> </td>
+         <td width="484"> <strong>Commentaires</strong> </td>
+         
+      </tr>
+      <tr>
+         <td width="121"> <strong>accesPersonneMobi
+         liteReduite</strong> </td>
+         <td width="484"> Indique si le point
+         est accessible aux
+         personnes à
+         mobilité réduite </td>
+         <td width="484">xs:boolean</td>
+         <td width="121">Valeurs
+         possibles : true pour oui et
+         false pour non
+         Spécifique aux Points
+         Retrait Bureaux de poste
+         (BPR) en France.
+         Peut-être affiché sous
+         forme de logo (disponible dans la charte web
+         Colissimo – voir à la fin de
+         ce paragraphe II.5.2.2) ou
+         de libellé. Peut également
+         être utilisé à des fins de
+         filtre lors de l’affichage sur
+         le site marchand.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>adresse1</strong> </td>
+         <td width="484"> Numéro et libellé
+         de la voie du point		 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 38
+         caractères.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>adresse2</strong> </td>
+         <td width="484"> Complément
+         d’adresse du point			 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 38
+         caractères.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>adresse3</strong> </td>
+         <td width="484"> Lieu-dit du point		 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 38
+         caractères.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>codePostale</strong> </td>
+         <td width="484"> Code postale du point retrait		 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 5
+         caractères.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>congesPartiel</strong> </td>
+         <td width="484"> Flag indiquant une
+         fermeture
+         partielle du Point
+         Retrait sur le délai
+         de garde du colis		 </td>
+         <td width="484">xs:boolean</td>
+         <td width="121">Valeurs possibles :
+         true pour oui et false pour
+         non
+         Permet d’identifier les
+         points de retrait ouverts au
+         moins 7 jours ouvrés (du
+         lundi au vendredi) durant le
+         délai de garde du colis.
+         Ces points de retrait
+         doivent être présentés et
+         peuvent être sélectionnés
+         par l’acheteur.
+         caractères.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>congesTotal</strong> </td>
+         <td width="484"> Flag indiquant une fermeture totale du Point Retrait durant le délai de garde du colis </td>
+         <td width="484">xs:boolean</td>
+         <td width="121">Valeurs possibles : true pour oui et false pour non Permet d’identifier les
+         points de retrait fermés durant la période de retrait du colis.
+         <strong>Ces points doivent être présentés mais le chargeur doit empêcher leur sélection par le client.</strong>
+         Un traitement
+         différenciateur est
+         souhaitable (en grisé ou
+         information « en
+         congés »par exemple)</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>coordGeolocalisationLatitude</strong></td>
+         <td width="484"> Latitude du point (norme WGS84 métrique) </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 10 caractères Ces coordonnées permettent la localisation du Point Retrait sur un plan.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>coordGeolocalisationLongitude</strong> </td>
+         <td width="484"> Longitude du
+         point (norme
+         WGS84 métrique)		 </td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 10
+         caractères
+         Ces coordonnées
+         permettent la localisation
+         du Point Retrait sur un
+         plan.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>distanceEnMetre</strong> </td>
+         <td width="484"> Distance enmètres par
+         rapport à
+         l’adresse fournie
+         en entrée		 </td>
+         <td width="484">xs:int</td>
+         <td width="121">Numérique sur 5 caractères
+         caractères.</td>
+         </tr>
+          <tr>
+         <td width="121"> <strong>horairesOuvertureLundi</strong> </td>
+         <td width="484" rowspan="7"> Horaires d’ouverture durant la journée, au format : nn:nn-nn:nn  nn:nn-nn:nn</td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 23 caractères Une plage horaire non renseignée équivaut à la valeur « 00:00-00:00 00:00-00:00 », cette valeur ne doit pas être affichée.
+         Une plage horaire sans coupure dans la journée a la valeur 0 pour la plage de l’après-midi (ex : 09:00-17:30 00:00-00:00) Les informations « 00:00-00:00 » ne doivent pas être affichées</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>horairesOuvertureMardi</strong></td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 23 caractères</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>horairesOuvertureMercredi</strong></td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 23 caractères</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>horairesOuvertureJeudi</strong></td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 23 caractères</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>horairesOuvertureVendredi</strong></td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 23 caractères</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>horairesOuvertureSamedi</strong></td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 23 caractères</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>horairesOuvertureDimanche</strong></td>
+         <td width="484">xs:string</td>
+         <td width="121">Alphanumérique sur 23 caractères</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>identifiant</strong> </td>
+         <td width="484"> Identifiant du Point Retrait Référence La Poste - Colissimo du point (identifiant unique).</td>
+         <td width="484">xs:string</td>
+         <td width="121">Numérique sur 6 caractères Cette identifiant doit être importé dans votre solution d’étiquetage.</td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>indiceDeLocalisation</strong> </td>
+         <td width="484"> Indice permettant de localiser le point. </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 70
+         caractères
+         L’indice de localisation est
+         une donnée spécifique aux
+         Points Retraits.
+         Exemple : Près de la gare
+         Il est fortement conseillé
+         d’afficher sur votre site
+         marchand tous les champs
+         d’adresse ainsi que l’indice
+         de localisation du Point
+         Retrait. </td>
+         </tr>
+          <tr>
+         <td width="121"> <strong>listeConges</strong> </td>
+         <td width="484"> <strong></strong> </td>
+         <td width="484"> tns:conges </td>
+         <td width="484"> Voir paragraphe II.6.2.3 Structure Congés </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>localite</strong> </td>
+         <td width="484"> Commune du point	 </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 32 caractères </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>nom</strong> </td>
+         <td width="484"> Libellé du point </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 50 caractères </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>periodeActiviteHoraireDeb	</strong> </td>
+         <td width="484"> Date de début de la période durant laquelle s’appliquent les horaires	 </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 5
+         caractères (JJ/MM) </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>periodeActiviteHoraireFin	</strong> </td>
+         <td width="484"> Date de fin de la période durant laquelle s’appliquent les horaires	 </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 5
+         caractères (JJ/MM) </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>poidsMaxi	</strong> </td>
+         <td width="484"> Poids maximum 
+         autorisé par colis 
+         par le point	 </td>
+         <td width="484"> xs:int </td>
+         <td width="484"> Numérique sur 2 caractères
+         Exprimé en Kilogrammes
+         important :
+         Les
+         points de type ACP et
+         CDI acceptent les colis d’un
+         poids allant jusqu’à <strong>30 kg et 200 cm en développé2.</strong>
+         </td>
+         </tr>
+          <tr>
+         <td width="121"> <strong>typeDePoint	</strong> </td>
+         <td width="484"> Type de point </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 3
+         caractères
+         Valeurs possibles :
+         A2P, BPR, CDI, ACP, BDP,
+         ou CMT (voir détails annexe Types de points retournés) 
+         </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>codePays	</strong> </td>
+         <td width="484"> Code pays du
+         Point Retrait </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 2
+         caractères
+         Valeurs possibles : FR (par
+         défaut) ou code du pays en
+         annexe Inter : Liste des
+         pays éligibles
+         </td>
+         </tr>
+          <tr>
+         <td width="121"> <strong>langue	</strong> </td>
+         <td width="484"> Langue des
+         libellés du Point
+         Retrait </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 2
+         caractères
+         Valeurs possibles : FR (par
+         défaut) ou cf annexe Inter :
+         Liste des pays éligibles
+         </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>libellePays	</strong> </td>
+         <td width="484"> Libellé du pays
+         du point	 </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Est retourné en français ou
+         néerlandais en fonction de
+         la langue demandée en
+         entrée dans le champ lang
+         Si le point n’existe pas dans
+         la langue demandée, il ne
+         sera pas retourné
+         </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>loanOfHandlingTool	</strong> </td>
+         <td width="484"> Indique si le point
+         dispose d’outils
+         de manutention	 </td>
+         <td width="484"> Boolean </td>
+         <td width="484"> Valeurs
+         possibles : true pour oui et
+         false pour non
+         </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>parking	</strong> </td>
+         <td width="484"> Indique si le point
+         dispose d’un
+         parking	 </td>
+         <td width="484"> Boolean </td>
+         <td width="484"> Valeur à false par défaut.
+         Prendre en compte
+         l’information en annexe
+         Types de points
+         retournésV.2
+         </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>reseau	</strong> </td>
+         <td width="484"> Identifiant
+         technique du
+         réseau auquel le
+         point appartient </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 3
+         caractères
+         R01 à R11 pour les points
+         français
+         Pour l’inter, voir valeurs
+         possibles en annexe Inter :
+         Codes réseaux
+         </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>distributionSort	</strong> </td>
+         <td width="484" rowspan="3"> Données d’acheminement nécessaires pour alimenter la solution d’étiquetage concernant les produits Points retraits.</td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 10 caractères
+         </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>lotAcheminement	</strong> </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 10 caractères </td>
+         </tr>
+         <tr>
+         <td width="121"> <strong>versionPlanTri	</strong> </td>
+         <td width="484"> xs:string </td>
+         <td width="484"> Alphanumérique sur 2 caractères
+         </td>
+         </tr>
+         </tbody>
+         </table>
+         
+      2 Dimension en développé = longueur + largeur + hauteur
+      
+      #### II.6.2.3 Structure Congés
+      
+      
+      <table width="100%">
+           <tbody>
+           <tr style="background-color: #e89236;">
+           <td width="121"> <strong>Paramètre</strong> </td>
+           <td width="484"> <strong>Signification</strong> </td>
+           <td width="484"> <strong>Type</strong> </td>
+           <td width="484"> <strong>Commentaires</strong> </td>
+           </tr>
+           <tr>
+           <td width="121"> <strong>calendarDeDebut</strong> </td>
+           <td width="484"> Date de début descongés </td>
+           <td width="484">xs:dateTime</td>
+           <td width="121">Date & Heure GMT auformat 
+           ISO-8601 (YYYYMMDDTHH:MM:SS.SSSZ)</td>
+           </tr>
+           <tr>
+           <td width="121"> <strong>calendarDeFin</strong> </td>
+           <td width="484"> Date de fin des congés </td>
+           <td width="484">xs:dateTime</td>
+           <td width="121">Date & Heure GMT au
+           format ISO-8601 (YYYYMMDDTHH:
+           MM:SS.SSSZ)</td>
+           </tr>
+           <tr>
+           <td width="121"> <strong>numero</strong> </td>
+           <td width="484"> Numéro d’ordre de la
+           période de congés sur
+           une échelle de temps
+           Il peut y avoir de 0 à n
+           périodes de congés par
+           point </td>
+           <td width="484">xs:int</td>
+           <td width="121">Numérique sur 1
+           caractère</td>
+           </tr>
+           </tbody>
+           </table>
+      
+      
+      #### II.6.2.4 Exemples d’enveloppes SOAP
+      
+      <strong>Exemple d’enveloppe de requête SOAP pour la méthode findPointRetraitAcheminementByID :</strong>
+      
+                 <v2:findPointRetraitAcheminementByID>
+                 <apikey>MY_API_KEY</apikey>
+                 <codTiersPourPartenaire></codTiersPourPartenaire>
+                 <id>850010</id>
+                 <date>17/10/2018</date>
+                 <weight>1</weight>
+                 <filterRelay></filterRelay>
+                 <reseau></reseau>
+                 <langue>FR</langue>
+                 </v2:findPointRetraitAcheminementByID>
+
+      
+      
+      <strong>Exemple d’enveloppe de retour :</strong>
+                   
+                   
+                  <ns2:findPointRetraitAcheminementByIDResponse xmlns:ns2="http://v2.pointretrait.geopost.com/">
+                  <return>
+                  <errorCode>0</errorCode>
+                  <errorMessage>Code retour OK</errorMessage>
+                  <pointRetraitAcheminement>
+                  <accesPersonneMobiliteReduite>false</accesPersonneMobiliteReduite>
+                  <adresse1>2 RUE DU GENERAL LECLERC</adresse1>
+                  <adresse2/>
+                  <adresse3/>
+                  <codePostal>85460</codePostal>
+                  <congesPartiel>false</congesPartiel>
+                  <congesTotal>false</congesTotal>
+                  <coordGeolocalisationLatitude>46.333696</coordGeolocalisationLatitude>
+                  <coordGeolocalisationLongitude>-1.297132</coordGeolocalisationLongitude>
+                  <distanceEnMetre>-1</distanceEnMetre>
+                  <horairesOuvertureDimanche>00:00-00:00 00:00-00:00</horairesOuvertureDimanche>
+                  <horairesOuvertureJeudi>09:00-12:00 14:00-16:00</horairesOuvertureJeudi>
+                  <horairesOuvertureLundi>09:00-12:00 14:00-16:00</horairesOuvertureLundi>
+                  <horairesOuvertureMardi>09:00-12:00 14:00-16:00</horairesOuvertureMardi>
+                  <horairesOuvertureMercredi>09:00-12:00 00:00-00:00</horairesOuvertureMercredi>
+                  <horairesOuvertureSamedi>09:00-12:00 00:00-00:00</horairesOuvertureSamedi>
+                  <horairesOuvertureVendredi>09:00-12:00 14:00-16:00</horairesOuvertureVendredi>
+                  <identifiant>850010</identifiant>
+                  <indiceDeLocalisation/>
+                  <listeConges>
+                  <calendarDeDebut>2019-01-01T00:00:00+01:00</calendarDeDebut>
+                  <calendarDeFin>2019-01-01T00:00:00+01:00</calendarDeFin>
+                  <numero>1</numero>
+                  </listeConges>
+                  <localite>L AIGUILLON SUR MER</localite>
+                  <nom>BUREAU DE POSTE L AIGUILLON SUR MER BP</nom>
+                  <periodeActiviteHoraireDeb>16/10</periodeActiviteHoraireDeb>
+                  <periodeActiviteHoraireFin>31/12</periodeActiviteHoraireFin>
+                  <poidsMaxi>20000</poidsMaxi>
+                  <typeDePoint>BPR</typeDePoint>
+                  <codePays>FR</codePays>
+                  <langue>FR</langue>
+                  <libellePays>FRANCE</libellePays>
+                  <loanOfHandlingTool>false</loanOfHandlingTool>
+                  <parking>false</parking>
+                  <reseau>R01</reseau>
+                  <distributionSort/>
+                  <lotAcheminement/>
+                  <versionPlanTri/>
+                  </pointRetraitAcheminement>
+                  </return>
+                  </ns2:findPointRetraitAcheminementByIDResponse>
+
+                 
+      #### II.6.2.5 Exemples de requête REST            
+        
+          {
+            "apikey":"5261E9618298B46D64BA6975CAD624E4",
+            "id":"013641",
+            "weight":"20",
+            "date":"10/06/2025",
+            "filterRelay":"1",
+            "reseau":"R03",
+            "langue":"FR"
+          }
+          
+          
+      Exemple de retour JSON :
+      
+      
+          {
+           "errorCode":0,
+           "errorMessage":"Code retour OK",
+           "pointRetraitAcheminement":{
+           "identifiant":"013641",
+           "nom":"CHANGE",
+           "adresse1":"87 A RAADHUISSTRAAT",
+           "adresse2":"",
+           "adresse3":"",
+           "codePostal":"4631NC",
+           "localite":"HOOGERHEIDE",
+           "indiceDeLocalisation":"",
+           "coordGeolocalisationLatitude":"51.4283574",
+           "coordGeolocalisationLongitude":"4.31949630",
+           "accesPersonneMobiliteReduite":false,
+           "horairesOuvertureLundi":"00:00-00:00 00:00-00:00",
+           "horairesOuvertureMardi":"10:00-17:30 00:00-00:00",
+           "horairesOuvertureMercredi":"10:00-17:30 00:00-00:00",
+           "horairesOuvertureJeudi":"10:00-17:30 00:00-00:00",
+           "horairesOuvertureVendredi":"10:00-17:30 00:00-00:00",
+           "horairesOuvertureSamedi":"10:00-17:00 00:00-00:00",
+           "horairesOuvertureDimanche":"00:00-00:00 00:00-00:00",
+           "periodeActiviteHoraireDeb":"01/01",
+           "periodeActiviteHoraireFin":"31/12",
+           "listeConges":[
+        
+              ],
+           "typeDePoint":"CMT",
+           "poidsMaxi":20000,
+           "distanceEnMetre":-1,
+           "congesPartiel":false,
+           "congesTotal":false,
+           "reseau":"R03",
+           "codePays":"NL",étape en amont 
+           "libellePays":"NEDERLAND",
+           "langue":"NL",
+           "parking":false,
+           "loanOfHandlingTool":false,
+           "distributionSort":"",
+           "lotAcheminement":"",
+           "versionPlanTri":""
+           }
+          }
+      
+      
+      
+                  
+      ## II.7 Appel du web service en mode GET
+       
+      ### II.7.1 Méthode findRDVPointRetraitAcheminement
+        
+        
+      Les paramètres d’entrée en mode GET via HTTPS de la méthode <strong>findRDVPointRetraitAcheminement</strong> sont les mêmes que ceux listés pour l’interface SOAP.<br>
+        
+      <strong>Exemple de requête :</strong>
+        
+        
+        https://ws.colissimo.fr/pointretrait-ws-cxf/PointRetraitServiceWS/2.0/findRDVPointRetraitAcheminement?apikey=[apikey]&codTiersPourPartenaire=[codTiersPourPartenaire]&address=[address]&zipCode=[zipCode]&city=[city]&countryCode=[countryCode]&weight =[weight]&shippingDate=[shippingDate]&filterRelay=[filterRelay]&requestId=[requestId]&lang=[lang]&optionInter=[optionInter]
+
+        
+      Pour ne pas passer un paramètre, il faut supprimer entièrement le paramètre (ne pas transmettre ce paramètre avec une valeur vide).<br>
+        
+      Par exemple l’appel suivant est incorrect :
+        
+        https://ws.colissimo.fr/pointretrait-ws-cxf/PointRetraitServiceWS/2.0/findRDVPointRetraitAcheminement? apikey=[apikey]&address&zipCode=75013&city=Paris&countryCode=FR&weight&shippingDate=29/08/2013&filterRelay=1&requestId=abcdef123456&lang&optionInter
+
+        
+      L’appel doit être :
+        
+        
+        https://ws.colissimo.fr/pointretrait-ws-cxf/PointRetraitServiceWS/2.0/findRDVPointRetraitAcheminement? apikey=[apikey]&zipCode=75013&city=Paris&countryCode=FR&shippingDate=17/10/2017&filterRelay=1&requestId=abcdef123456
+        
+      ### II.7.2 Résponse
+      
+      Flux XML identique au flux retourné par l’interface SOAP.
+        
+      <strong>Exemple de retour :</strong>
+        
+        <ns2:findRDVPointRetraitAcheminementResponse>
+        <return>
+        <errorCode>0</errorCode>
+        <errorMessage>Code retour OK</errorMessage>
+        <listePointRetraitAcheminement>
+        <accesPersonneMobiliteReduite>false</accesPersonneMobiliteReduite>
+        <adresse1>108 RUE NATIONALE</adresse1>
+        <adresse2/>
+        <adresse3/>
+        <codePostal>75013</codePostal>
+        <congesPartiel>false</congesPartiel>
+        <congesTotal>false</congesTotal>
+        <coordGeolocalisationLatitude>48.829</coordGeolocalisationLatitude>
+        <coordGeolocalisationLongitude>2.366</coordGeolocalisationLongitude>
+        <distanceEnMetre>270</distanceEnMetre>
+        <horairesOuvertureDimanche>00:00-00:00 00:00-00:00</horairesOuvertureDimanche>
+        <horairesOuvertureJeudi>09:00-21:00 00:00-00:00</horairesOuvertureJeudi>
+        <horairesOuvertureLundi>09:00-21:00 00:00-00:00</horairesOuvertureLundi>
+        <horairesOuvertureMardi>09:00-21:00 00:00-00:00</horairesOuvertureMardi>
+        <horairesOuvertureMercredi>09:00-21:00 00:00-00:00</horairesOuvertureMercredi>
+        <horairesOuvertureSamedi>09:00-21:00 00:00-00:00</horairesOuvertureSamedi>
+        <horairesOuvertureVendredi>09:00-21:00 00:00-00:00</horairesOuvertureVendredi>
+        <identifiant>106610</identifiant>
+        <indiceDeLocalisation/>
+        <localite>PARIS</localite>
+        <nom>CARREFOUR EXPRESS</nom>
+        <periodeActiviteHoraireDeb>01/01</periodeActiviteHoraireDeb>
+        <periodeActiviteHoraireFin>31/12</periodeActiviteHoraireFin>
+        <poidsMaxi>20000</poidsMaxi>
+        <typeDePoint>A2P</typeDePoint>
+        <codePays>FR</codePays>
+        <langue>FR</langue>
+        <libellePays>FRANCE</libellePays>
+        <loanOfHandlingTool>false</loanOfHandlingTool>
+        <parking>false</parking>
+        <reseau>R03</reseau>
+        <distributionSort>75P40</distributionSort>
+        <lotAcheminement>FTV0</lotAcheminement>
+        <versionPlanTri>8</versionPlanTri>
+        </listePointRetraitAcheminement>
+        <listePointRetraitAcheminement>
+        <accesPersonneMobiliteReduite>false</accesPersonneMobiliteReduite>
+        <adresse1>19 RUE SIMONE WEIL</adresse1>
+        <adresse2/>
+        <adresse3/>
+        <codePostal>75013</codePostal>
+        <congesPartiel>false</congesPartiel>
+        <congesTotal>false</congesTotal>
+        <coordGeolocalisationLatitude>48.823995</coordGeolocalisationLatitude>
+        <coordGeolocalisationLongitude>2.363475</coordGeolocalisationLongitude>
+        <distanceEnMetre>422</distanceEnMetre>
+        <horairesOuvertureDimanche>00:00-00:00 00:00-00:00</horairesOuvertureDimanche>
+        <horairesOuvertureJeudi>09:00-19:00 00:00-00:00</horairesOuvertureJeudi>
+        <horairesOuvertureLundi>09:00-19:00 00:00-00:00</horairesOuvertureLundi>
+        <horairesOuvertureMardi>09:00-19:00 00:00-00:00</horairesOuvertureMardi>
+        <horairesOuvertureMercredi>09:00-19:00 00:00-00:00</horairesOuvertureMercredi>
+        <horairesOuvertureSamedi>09:00-13:00 00:00-00:00</horairesOuvertureSamedi>
+        <horairesOuvertureVendredi>09:00-19:00 00:00-00:00</horairesOuvertureVendredi>
+        <identifiant>757410</identifiant>
+        <indiceDeLocalisation/>
+        <listeConges>
+        <calendarDeDebut>2019-01-01T00:00:00+01:00</calendarDeDebut>
+        <calendarDeFin>2019-01-01T00:00:00+01:00</calendarDeFin>
+        <numero>1</numero>
+        </listeConges>
+        <localite>PARIS</localite>
+        <nom>BUREAU DE POSTE PARIS OLYMPIADES</nom>
+        <periodeActiviteHoraireDeb>08/10</periodeActiviteHoraireDeb>
+        <periodeActiviteHoraireFin>31/12</periodeActiviteHoraireFin>
+        <poidsMaxi>20000</poidsMaxi>
+        <typeDePoint>BPR</typeDePoint>
+        <codePays>FR</codePays>
+        <langue>FR</langue>
+        <libellePays>FRANCE</libellePays>
+        <loanOfHandlingTool>false</loanOfHandlingTool>
+        <parking>false</parking>
+        <reseau>R01</reseau>
+        <distributionSort/>
+        <lotAcheminement/>
+        <versionPlanTri/>
+        </listePointRetraitAcheminement>
+        <qualiteReponse>2</qualiteReponse>
+        <wsRequestId>36206d176798d9e51822568f492c3c8499c76598f2da141b5fa937f0a643f15a</wsRequestId>
+        <rdv>false</rdv>
+        </return>
+        </ns2:findRDVPointRetraitAcheminementResponse>
+
+        
+      ### II.7.3 Méthode findPointRetraitAcheminementByID
+      
+      
+      Les paramètres d’entrée en mode GET via HTTPS de la méthode <strong>findPointRetraitAcheminementByID</strong> sont les mêmes que ceux listés pour l’interface SOAP.<br>
+      
+     
+      <strong>Exemple de requête :</strong>
+      
+        https://ws.colissimo.fr/pointretrait-ws-cxf/PointRetraitServiceWS/2.0/findPointRetraitAcheminementByID?apikey=[apikey]&codTiersPourPartenaire=[codTiersPourPartenaire]&id=[identifiantPoint]&date=[date]&weight=[weight]&filterRelay=[filterRelay]&reseau=[reseau]&langue=[langue]
+      
+      
+      Pour ne pas passer un paramètre, il faut supprimer entièrement le paramètre (ne pas transmettre ce paramètre avec une valeur vide).<br>
+      
+      Par exemple l’appel suivant est incorrect :         
+         
+        https://ws.colissimo.fr/pointretrait-ws-cxf/PointRetraitServiceWS/2.0/findPointRetraitAcheminementByID? apikey=[apikey]&id=123456&date=26/08/2013&weight&filterRelay&reseau&langue
+      
+      L’appel doit être : 
+     
+        https://ws.colissimo.fr/pointretrait-ws-cxf/PointRetraitServiceWS/2.0/findPointRetraitAcheminementByID? apikey=[apikey]&id=850010&date=26/08/2013&weight&filterRelay&reseau&langue
+      
+      
+      ### II.7.4 Réponse
+      
+      Flux XML identique au flux retourné par l’interface SOAP.
+         
+      Exemple de retour :
+         
+             <ns2:findPointRetraitAcheminementByIDResponse>
+             <return>
+             <errorCode>0</errorCode>
+             <errorMessage>Code retour OK</errorMessage>
+             <pointRetraitAcheminement>
+             <accesPersonneMobiliteReduite>false</accesPersonneMobiliteReduite>
+             <adresse1>2 RUE DU GENERAL LECLERC</adresse1>
+             <adresse2/>
+             <adresse3/>
+             <codePostal>85460</codePostal>
+             <congesPartiel>false</congesPartiel>
+             <congesTotal>false</congesTotal>
+             <coordGeolocalisationLatitude>46.333696</coordGeolocalisationLatitude>
+             <coordGeolocalisationLongitude>-1.297132</coordGeolocalisationLongitude>
+             <distanceEnMetre>-1</distanceEnMetre>
+             <horairesOuvertureDimanche/>
+             <horairesOuvertureJeudi/>
+             <horairesOuvertureLundi/>
+             <horairesOuvertureMardi/>
+             <horairesOuvertureMercredi/>
+             <horairesOuvertureSamedi/>
+             <horairesOuvertureVendredi/>
+             <identifiant>850010</identifiant>
+             <indiceDeLocalisation/>
+             <listeConges>
+             <calendarDeDebut>2019-01-01T00:00:00+01:00</calendarDeDebut>
+             <calendarDeFin>2019-01-01T00:00:00+01:00</calendarDeFin>
+             <numero>1</numero>
+             </listeConges>
+             <localite>L AIGUILLON SUR MER</localite>
+             <nom>BUREAU DE POSTE L AIGUILLON SUR MER BP</nom>
+             <periodeActiviteHoraireDeb/>
+             <periodeActiviteHoraireFin/>
+             <poidsMaxi>20000</poidsMaxi>
+             <typeDePoint>BPR</typeDePoint>
+             <codePays>FR</codePays>
+             <langue>FR</langue>
+             <libellePays>FRANCE</libellePays>
+             <loanOfHandlingTool>false</loanOfHandlingTool>
+             <parking>false</parking>
+             <reseau>R01</reseau>
+             <distributionSort/>
+             <lotAcheminement/>
+             <versionPlanTri/>
+             </pointRetraitAcheminement>
+             </return>
+             </ns2:findPointRetraitAcheminementByIDResponse>
+
+             
+      ## II.8 Appel du web service en mode REST
+      
+      ### II.8.1 Méthode findRDVPointRetraitAcheminement
+      
+       <strong>Exemple de requête en REST :</strong>
+           
+                {
+                "apikey": "XXXXXX",
+                "address": "",
+                "zipCode": "3030175",
+                "city": "Coimbra",
+                "countryCode": "PT",
+                "weight": "1",
+                "shippingDate": "27/11/2019",
+                "filterRelay": "1",
+                "optionInter":"1",
+                "requestId": "mmm",
+                "lang": "FR"
+                }
+
+
+    Les règles sont les mêmes que sur le service en SOAP, 
+    aussi bien sur les paramètres en entrée que sur les données retournées.
+    
+      ### II.8.2 Réponse
+           
+
+       <strong>Exemple de retour en REST :</strong>
+           
+                
+                {
+                "errorCode": 0,
+                "errorMessage": "Code retour OK",
+                "qualiteReponse": 2,
+                "wsRequestId": "0bd2dbb0f80e9bdeb1f4c86f30ed772534390a2c8e6eae557d5a5e83cbedb8a9",
+                "listePointRetraitAcheminement":    [
+                {
+                "identifiant": "023196",
+                "nom": "TABACARIA ARQUIVO",
+                "adresse1": "R. DR MANUEL RODRIGUES 9 R/C",
+                "adresse2": "",
+                "adresse3": "",
+                "codePostal": "3000-244",
+                "localite": "COIMBRA",
+                "indiceDeLocalisation": "POR TRAS DO PINGO DOCE",
+                "coordGeolocalisationLatitude": "40.213838",
+                "coordGeolocalisationLongitude": "-8.432137",
+                "accesPersonneMobiliteReduite": false,
+                "horairesOuvertureLundi": "08:00-12:00 12:00-19:00",
+                "horairesOuvertureMardi": "08:00-12:00 12:00-19:00",
+                "horairesOuvertureMercredi": "08:00-12:00 12:00-19:00",
+                "horairesOuvertureJeudi": "08:00-12:00 12:00-19:00",
+                "horairesOuvertureVendredi": "08:00-12:00 12:00-19:00",
+                "horairesOuvertureSamedi": "00:00-00:00 00:00-00:00",
+                "horairesOuvertureDimanche": "00:00-00:00 00:00-00:00",
+                "periodeActiviteHoraireDeb": "01/01",
+                "periodeActiviteHoraireFin": "31/12",
+                "listeConges": [],
+                "typeDePoint": "CMT",
+                "poidsMaxi": 20000,
+                "distanceEnMetre": 362,
+                "congesPartiel": false,
+                "congesTotal": false,
+                "reseau": "R03",
+                "codePays": "PT",
+                "libellePays": "PORTUGAL",
+                "langue": "PT",
+                "parking": false,
+                "loanOfHandlingTool": false,
+                "distributionSort": "",
+                "lotAcheminement": "",
+                "versionPlanTri": ""
+                },
+                {
+                "identifiant": "047517",
+                "nom": "PAPELARIA TABACARIA CORTEZ",
+                "adresse1": "AV CALOUSTE GULBENKIAN ",
+                "adresse2": "CENTRO COMERCIALPRIMAVERA, LT5LJ9",
+                "adresse3": "",
+                "codePostal": "3000-090",
+                "localite": "COIMBRA",
+                "indiceDeLocalisation": "C.C. MAYFLOWER",
+                "coordGeolocalisationLatitude": "40.214856",
+                "coordGeolocalisationLongitude": "-8.416034",
+                "accesPersonneMobiliteReduite": false,
+                "horairesOuvertureLundi": "08:00-12:00 12:00-19:00",
+                "horairesOuvertureMardi": "08:00-12:00 12:00-19:00",
+                "horairesOuvertureMercredi": "08:00-12:00 12:00-19:00",
+                "horairesOuvertureJeudi": "08:00-12:00 12:00-19:00",
+                "horairesOuvertureVendredi": "08:00-12:00 12:00-19:00",
+                "horairesOuvertureSamedi": "08:00-12:00 12:00-19:00",
+                "horairesOuvertureDimanche": "08:00-12:00 12:00-19:00",
+                "periodeActiviteHoraireDeb": "02/07",
+                "periodeActiviteHoraireFin": "31/12"
+                ...
+
+                    
+    # III.Codes erreurs
+    
+           Il s’agit des valeurs possibles de l’élément <errorCode> présent dans la définition du 
+           type <PointRetraitResult>. La cause de l’erreur est décrite dans l’élément <errorMessage> associé.
+           
+           
+       <table width="100%">
+       <tbody>
+       <tr style="background-color: #e89236;">
+       <td width="121"> <strong>Code erreur</strong> </td>
+       <td width="484"> <strong>Description</strong> </td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>0</strong> </td>
+       <td width="484"> Code retour OK </td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>101</strong> </td>
+       <td width="484"> Numéro de compte absent </td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>102</strong> </td>
+       <td width="484"> Mot de passe absent </td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>104</strong> </td>
+       <td width="484"> Code postal absent </td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>105</strong> </td>
+       <td width="484"> Code postal absent </td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>106</strong> </td>
+       <td width="484"> Date estimée de l’envoi absente </td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>107</strong> </td>
+       <td width="484"> Identifiant point de retrait absent </td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>117</strong> </td>
+       <td width="484"> Code ISO pays manquant </td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>120</strong> </td>
+       <td width="484"> Poids n’est pas un entier </td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>121</strong> </td>
+       <td width="484"> Poids n’est pas compris entre 1 et 99999 </td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>122</strong> </td>
+       <td width="484"> Date n’est pas au format JJ/MM/AAAA </td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>123</strong> </td>
+       <td width="484"> Filtre relais n’est pas 0 ou 1 </td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>124</strong> </td>
+       <td width="484"> Identifiant point de retrait incorrect </td>
+       <tr>
+       <td width="121"> <strong>125</strong> </td>
+       <td width="484"> 125	Code postal incorrect (non compris entre 01XXX et 95XXX ou 980XX)</td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>127</strong> </td>
+       <td width="484"> RequestId incorrect</td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>129</strong> </td>
+       <td width="484"> Adresse incorrecte</td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>143</strong> </td>
+       <td width="484">Code postal incorrect (format XXXX non respecté)</td>
+       </tr><tr>
+       <td width="121"> <strong>144</strong> </td>
+       <td width="484">Code postal incorrect, format non respecté</td>
+       </tr>
+       <tr>
+       <td width="121"> <strong>145</strong> </td>
+       <td width="484">Code postal obligatoire</td></tr><tr>
+       <td width="121"> <strong>146</strong> </td>
+       <td width="484">Pays non éligible à Colissimo Europe</td></tr>
+       <tr>
+       <td width="121"> <strong>201</strong> </td>
+       <td width="484">Identifiant / mot de passe invalide</td></tr>
+       <tr>
+       <td width="121"> <strong>202</strong> </td>
+       <td width="484">Service non autorisé pour cet identifiant</td>
+       </tr><tr>
+       <td width="121"> <strong>203</strong> </td><td width="484">Option internationale non compatible avec le pays</td>
+       </tr><tr><td width="121"> <strong>300</strong> </td>
+       <td width="484">Pas de point de retrait suite à l’application des règles métier</td></tr><tr>
+       <td width="121"> <strong>301</strong> </td>
+       <td width="484">Pas de point de retrait trouvé</td>
+       </tr>
+       <tr>
+       <td width="121"><strong>1000</strong>
+        </td>
+       <td width="484">Erreur système (erreur technique)
+       </td>
+       </tr>
+       </tbody>
+       </table>
+
+     # IV.	Contact
+     
+
+     <p><span style="color: #d36e00;"><strong>La Poste - Colissimo met à votre disposition un support, que nous vous<br>invitons à contacter dans les cas suivants :<strong><br><br></span></p>
+
+     
+     <div align="left">
+     <img alt="A geolabel label" src="../images/injecteur.png" />
+     </div>
+     
+     # V. ANNEXES
+       
+       ## V. 1 Front Office client : Points de vigilance
+       
+       
+       La mise en place de l’offre Colissimo Point Retrait sur le Front Office d’un client chargeur,
+       implique de respecter un certain nombre de points de vigilance importants.
+       
+       Ces points de vigilance permettent notamment de s’assurer :
+       - D’éviter tout malentendu du client destinataire, sur la nature de la prestation de transport (présentation appropriée de l’offre Colissimo, récapitulatif du mode delivraison, …).
+       - Que cette étape en amont permette de récupérer les données indispensables au bon déroulement de la prestation de transport 
+       (données de livraison exhaustives, informations de contact du destinataire, …).<br><br>
+       La Poste – Colissimo demande à ses clients chargeurs, en préalable du lancement effectif de
+       l’offre sur leur site de production, de bien vouloir l’associer à leur phase de validation de
+       cette partie de leur Front Office, en communiquant à leur interlocuteur commercial, un
+       compte de test. <br><br>
+       <span style="color: #d36e00;"><strong>Cas de test et points à vérifier</strong></span>
+       
+       
+       
+           <table width="100%">
+           <tbody>
+           <tr style="background-color: #e89236;">
+            <th colspan="2">Demande du numéro de téléphone portable dans le process de commande</th>
+            </tr>
+           <tr>
+           <td>Numéro de téléphone portable obligatoire</td>
+           <td>A un moment ce numéro de téléphone portable doit être demandé au destinataire</td>
+           </tr>
+           <tr>
+           <td>Format du numéro de téléphone portable</td>
+           <td  rowspan=2 >
+           Pour les destinataires français, le numéro de téléphone portable doit commencer par 06 ou 07 et être sur 10 chiffres, sans espace, "." ou autre caractères.
+           <br>
+           Pour les destinataires belges, le numéro de téléphone portable doit commencer par le caractère + suivi de 324, suivi de 8 chiffres.
+            <br>
+            De même il est souhaitable d'interdire les :
+            - numéros de téléphone avec 8 chiffres identiques (0600000000,
+            0700000000, 0666666666, 0777777777...)
+            - 0612345678 ou 0712345678
+            Pour les autres pays, la validation du numéro se basera sur
+            l’indicatif uniquement avec + ou 00.            
+           </td>
+           </tr>
+             <tr>
+            </tr>           
+            <tr>
+            <td>Présentation de la livraison dans le tunnel d'achat.</td>
+            <td>Présence de l'offre Colissimo</td>
+            </tr>           
+            <tr>
+            <td>Points de retrait internationaux</td>
+            <td>Si vous avez activé l’option internationale,
+            veuillez-vous assurer que votre site affiche bien les points 
+            de retrait des pays éligibles (voir l’annexe V.3) susceptibles
+            d’être retournés par notre WebService</td>
+            </tr>
+          
+            <tr>
+            <td>Présence de tous les types de points de retrait</td>
+            <td>La présentation des modes de livraison est faite conformément à nos attentes.
+            Ordre à respecter : <br>
+                   - voisin relais ( en France)<br>
+                   - à la Poste (en France) ou en bureau de poste (à l’étranger) <br>
+                   - en relais Pickup (en France) ou en relais (à l’Etranger)<br>
+                   - en consigne Pickup Station (en France)
+            </tr>
+             <tr>
+            <td>Noms des modalités de livraison corrects</td>
+            <td>Respecter la casse des lettres du libellé des offres.</td>
+            </tr>
+            <tr>
+            <td>Description des offres correcte</td>
+            <td>Les modalités de livraison sont bien décrites</td>
+            </tr>
+            <tr>
+            </tr>
+             <tr>
+            <th colspan="2" style="background-color: #e89236;">Affichage des points hors domicile</th>
+            </tr>
+            <tr>
+            <td>Affichage des horaires</td>
+            <td>Les horaires sont consultables (quand elles sont connues) par les internautes</td>
+            </tr>
+            <tr>
+            <td>Possibilité de rechercher un point de retrait situé ailleurs</td>
+            <td>Il est possible de rechercher un point de retrait situé sur une autre zone géographique</td>
+            </tr>
+            <tr>
+            <td>Affichage des points accessibles aux personnes en situation de handicap</td>
+            <td>Il est possible de rechercher un point de retrait situé sur une autre zone géographique</td>
+            </tr>
+            <tr>
+            <td>Affichage des points accessibles aux personnes en situation de handicap</td>
+            <td>Il est possible d'identifier les points de retrait accessibles aux personnes en situation de handicap (logo ou texte)</td>
+            </tr>
+            <tr>
+            </tr>
+             <tr>
+            <th colspan="2" style="background-color: #e89236;">Expérience destinataire</th>
+            </tr>
+            <tr>
+            <td>Explications sur l'expérience client en termes de réception de la commande</td>
+            <td>Le site indique clairement comment la livraison va se dérouler (pour le hors domicile)</td>
+            </tr>
+            <tr>
+            <td>Information sur les délais de livraison</td>
+            <td>Les délais de livraison annoncés (et la date de livraison
+            indicative) doivent tenir compte du temps de
+             préparation de la commande et les délais
+             d’acheminement prévus de bout en bout par La Poste.</td>
+            </tr>
+            <tr>
+            </tr>
+             <tr>
+            <th colspan="2" style="background-color: #e89236;">Récapitulatif de la commande</th>
+            </tr>
+            <tr>
+            <td>Sur le site</td>
+            <td>Pour chacun des modes de livraison, 
+            le récapitulatif de la
+            commande fait bien apparaître le mode et l’adresse de livraison.</td>
+            </tr>
+            <tr>
+            <td>Email de confirmation</td>
+            <td>Pour chacun des modes de livraison, le récapitulatif de la
+            commande fait bien apparaître le mode de livraison.</td>
+            </tr>
+             <tr>
+            </tr>
+             <tr>
+            <th colspan="2" style="background-color: #e89236;">Page présentant la livraison sur le site (hors tunnel d'achat)</th>
+            </tr>
+            <tr>
+            <td>Présence de l'offre Colissimo</td>
+            <td>La livraison via Colissimo est présente</td>
+            </tr>
+            <tr>
+            <td>Description correcte de l'offre Colissimo</td>
+            <td>Si elle est présente, la description de l'offre doit être correcte</td>
+            </tr>
+            <tr>
+            <td>Bon logo</td>
+            <td>Le bon logo doit être utilisé</td>
+            </tr>
+            <tr>
+            </tr>
+             <tr>
+            <th colspan="2" style="background-color: #e89236;">CGV</th>
+            </tr>
+            <tr>
+            <td>Utilisation des données personnelles</td>
+            <td>Le chargeur fait-il référence à la transmission des données personnelles à un tiers ?</td>
+            </tr>
+            <tr>
+            </tr>
+             <tr>
+            <th colspan="2" style="background-color: #e89236;">Carnet d'adresses</th>
+            </tr>
+            <tr>
+            <td>Pas d'enregistrement des points de 
+            retrait hors domicile dans le carnet
+            d'adresses</td>
+            <td>Vérifier que les adresses des points de retrait hors domicile n'ont pas été
+             enregistrées dans le carnet d'adresse suite aux commandes passées sur le site.</td>
+            </tr>
+            </tbody>
+            </table>
+            
+      ## V.2 Types de points retournés
+                     
+                     
+     Différents types de points de retrait peuvent être retournés par la méthode findRDVPointRetraitAcheminement. Le type d’un point se retrouve dans 
+     le trigramme <strong>typeDePoint</strong> retourné dans la réponse de la méthode findRDVPointRetraitAcheminement (cf. II.5.2 Réponse).<br><br>
+            
+     Le tableau ci-dessous récapitule les particularités de chaque type de point. Il est également valable pour un appel du Web Service en mode GET 
+     (cf. II.7 Appel du web service en mode GET).
+            
+      <table width="100%">
+                       <thead>
+                       <tr style="background-color: #e89236;">
+                       <th>Mode de livraison</th>
+                       <th>Trigramme typeDePoint</th>
+                       <th>Remarques</th>
+                       <th>Limite de poids/dimension en développé</th>
+                       </tr>
+                       </thead>
+                       <tbody>
+                       <tr>
+                       <td rowspan="3">A la poste</td>
+                       <td><strong>BPR</strong></td>
+                       <td>Bureaux de poste en France</td>
+                       <td>Se référer à la table des pays</td>
+                       </tr>
+                       <tr>
+                       <td><strong>ACP</strong></td>
+                       <td>Agences La Poste - Colissimo (France)</td>
+                       <td>Se référer à la table des pays</td>
+                       </tr>
+                       <tr>
+                       <td><strong>CDI</strong></td>
+                       <td>Centres de distribution de La Poste (France)</td>
+                       <td>Se référer à la table des pays</td>
+                       </tr>
+                       <tr>
+                       <td>En bureau de poste</td>
+                       <td><strong>BDP</strong></td>
+                       <td>Commerces de proximité en Belgique</td>
+                       <td>Se référer à la table des pays</td>
+                       </tr>
+                       <tr>
+                       <td>En relais</td>
+                       <td><strong>A2P</strong></td>
+                       <td>Commerces de proximité en France</td>
+                       <td>Se référer à la table des pays</td>
+                       </tr>
+                       <tr>
+                       <td></td>
+                       <td><strong>CMT</strong></td>
+                       <td>Commerces de proximité des pays éligibles (voir annexe Inter : Liste des pays éligibles)</td>
+                       <td>Se référer à la table des pays</td>
+                       </tr>
+                       <tr>
+                       <td>En consigne</td>
+                       <td><strong>A2P</strong></td>
+                       <td>Consignes en France</td>
+                       <td>Se référer à la table des pays</td>
+                       </tr>
+                       <tr>
+                       <td></td>
+                       <td><strong>PCS</strong></td>
+                       <td>Consignes à l'international</td>
+                       <td>Se référer à la table des pays</td>
+                       </tr>
+                       </tbody>
+                       </table>
+              
+       3 Dimension en développé = longueur + largeur + hauteur
+       
+       Pour bénéficier de la tolérance offerte par les points de type « ACP », « CDI », et « BDP », il convient donc :
+       
+       
+       - De ne pas mettre en place en amont de l’appel au web service, de filtrage global au-delà de 20 kg
+       - De fournir le poids du colis dans le paramètre d’appel approprié (§II.5.1 : Weight).
+       - D’autoriser la sélection des points ACP et CDI pour les colis allant jusqu’à 200 cm en développé, si votre Front-Office gère ce critère à cette étape du parcours client.
+       
+       
+       Les types de point ACP et CDI mettent tous à disposition des clients les services suivants :
+       
+       - Un parking dédié
+       - Des outils de manutention pour faciliter le transport du/des colis jusqu’au véhicule
+       - Une accessibilité aux personnes à mobilité réduite<br><br>
+      
+      
+       <strong>Charte web Colissimo :</strong><br>
+       Les différents éléments graphiques (logos, pictogrammes, bannières, …) mentionnés dans ce document peuvent être téléchargés sur
+       la Colissimo Box sans authentification requise :  https://www.colissimo.entreprise.laposte.fr/outils-et-services/kit-de-communication#elements-graphiques
+      
+      
+      ## V.3 Inter : Liste des pays éligibles
+      
+        liste des pays éligibles à l’offre Colissimo International Point Retrait<br>https://www.colissimo.entreprise.laposte.fr/offres-et-tarifs/offre-international<br>
+
+      
+      ## V.4  Inter : Codes réseaux
+
+
+    <table width="100%">
+    <thead>
+        <tr style="background-color: #e89236;">
+            <th>codePays</th>
+            <th>codeProduit</th>
+            <th>réseau</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>DE</td>
+            <td>CMT, PCS</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>ES</td>
+            <td>CMT, PCS</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>LU</td>
+            <td>CMT</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>NL</td>
+            <td>CMT, PCS</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>BE</td>
+            <td>BDP, CMT, PCS</td>
+            <td>R12</td>
+        </tr>
+        <tr>
+            <td>AT</td>
+            <td>CMT</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>EE</td>
+            <td>PCS</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>LV</td>
+            <td>PCS</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>LT</td>
+            <td>PCS</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>PL</td>
+            <td>CMT, PCS</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>SE</td>
+            <td>CMT</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>SK</td>
+            <td>CMT</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>SI</td>
+            <td>CMT</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>IT</td>
+            <td>CMT</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>CZ</td>
+            <td>CMT</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>DK</td>
+            <td>CMT</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>HU</td>
+            <td>CMT</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>IE</td>
+            <td>CMT</td>
+            <td>R03</td>
+        </tr>
+        <tr>
+            <td>PT</td>
+            <td>CMT, PCS</td>
+            <td>R03</td>
+        </tr>
+    </tbody>
+    </table>
+
+                                               
+            
+            
+            
+            
+       
+     
+     
+     
+     
+     

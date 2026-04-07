@@ -1,0 +1,94 @@
+// src/features/catalog/ui/filters/filter-drawer.tsx
+"use client";
+
+import { useEffect, useCallback } from "react";
+import type { Category } from "@/shared/types/prisma";
+import { FilterPanel } from "./filter-panel";
+import { useStoreThemeTokens } from "@/shared/store-theme";
+import { useTranslations } from "next-intl";
+
+interface Color {
+  id: string;
+  name: string;
+  slug: string;
+  hex: string;
+}
+
+interface FilterDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  categories: Category[];
+  colors?: Color[];
+}
+
+// Solid background colors matching header/footer
+const PANEL_COLORS = {
+  light: "#f9f9f3",
+  dark: "#20223c",
+} as const;
+
+export function FilterDrawer({
+  isOpen,
+  onClose,
+  categories,
+  colors = [],
+}: FilterDrawerProps) {
+  const t = useTranslations("filters");
+  const { isDark, mounted } = useStoreThemeTokens();
+
+  // Handle escape key
+  const handleEscape = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    },
+    [onClose]
+  );
+
+  // Lock body scroll and listen for escape when open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      document.addEventListener("keydown", handleEscape);
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen, handleEscape]);
+
+  // Solid background style (matching header/footer)
+  const panelStyle = mounted
+    ? { backgroundColor: isDark ? PANEL_COLORS.dark : PANEL_COLORS.light }
+    : undefined;
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 lg:hidden ${
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Drawer panel */}
+      <div
+        className={`fixed inset-y-0 left-0 z-50 w-full max-w-[240px] border-r border-border shadow-xl transition-transform duration-300 ease-out lg:hidden ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        style={panelStyle}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("filterProducts")}
+      >
+        <FilterPanel categories={categories} colors={colors} onClose={onClose} isMobile />
+      </div>
+    </>
+  );
+}
