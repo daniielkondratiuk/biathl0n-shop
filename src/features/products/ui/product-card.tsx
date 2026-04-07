@@ -8,6 +8,7 @@ import type { Product, Category, ProductImage } from "@/shared/types/prisma";
 import { SafeImage } from "./safe-image";
 import { Badge } from "@/components/ui/badge";
 import { WishlistButton } from "@/features/wishlist";
+import { useStoreThemeTokens } from "@/shared/store-theme";
 
 type ProductWithRelations = Product & {
   category: Category;
@@ -40,6 +41,7 @@ export function ProductCard({ product }: { product: ProductWithRelations }) {
   const locale = useLocale();
   const tCart = useTranslations("cart");
   const tCatalog = useTranslations("catalog");
+  const themeTokens = useStoreThemeTokens();
 
   // Extract images from first color variant
   const firstColor = product.colorVariants?.[0];
@@ -87,7 +89,13 @@ export function ProductCard({ product }: { product: ProductWithRelations }) {
       onMouseLeave={() => setHover(false)}
     >
       {/* Product Image Container - Square */}
-      <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-muted">
+      <div
+        className="relative aspect-square w-full overflow-hidden rounded-2xl border"
+        style={{
+          backgroundColor: themeTokens.cardBg,
+          borderColor: themeTokens.border,
+        }}
+      >
         <div
           className={`absolute inset-0 z-0 transition-opacity duration-300 ease-out ${
             hover && mainDetailImageUrl ? "opacity-0" : "opacity-100"
@@ -146,19 +154,25 @@ export function ProductCard({ product }: { product: ProductWithRelations }) {
       <div className="flex flex-col gap-1 pt-3">
         {/* Title and Price - Same Line */}
         <div className="flex items-center justify-between gap-2">
-          <div className="max-w-full uppercase tracking-wide text-sm font-semibold text-foreground transition-colors hover:text-accent cursor-pointer">
+          <div
+            className="max-w-full uppercase tracking-wide text-sm font-semibold transition-colors cursor-pointer"
+            style={{ color: themeTokens.textPrimary }}
+          >
             <span className="relative inline-block max-w-full after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-full after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-[100ms] after:linear after:delay-[100ms] group-hover:after:scale-x-100 group-hover:after:delay-0">
               <span className="block max-w-full truncate">{product.title || product.name}</span>
             </span>
           </div>
-          <span className="relative inline-block text-sm font-semibold text-foreground whitespace-nowrap after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-full after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-[100ms] after:linear after:delay-0 group-hover:after:scale-x-100 group-hover:after:delay-[100ms]">
+          <span
+            className="relative inline-block text-sm font-semibold whitespace-nowrap after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-full after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-[100ms] after:linear after:delay-0 group-hover:after:scale-x-100 group-hover:after:delay-[100ms]"
+            style={{ color: themeTokens.textPrimary }}
+          >
             {price}
           </span>
         </div>
 
         {/* Colors count */}
         {colorCount > 0 && (
-          <p className="text-xs uppercase text-muted-foreground">
+          <p className="text-xs uppercase" style={{ color: themeTokens.textSecondary }}>
             {colorCount} {colorCount === 1 ? tCatalog("color") : tCatalog("colors")}
           </p>
         )}

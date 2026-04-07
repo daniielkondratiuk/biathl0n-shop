@@ -43,7 +43,9 @@
   --radius: 0.5rem;
 }
 
-.dark {
+/* Dark semantic palette: supports both next-themes and local shells. */
+.dark,
+html[data-next-theme="dark"] {
   /* Semantic colors - Dark mode */
   --background: var(--neutral-900);
   --foreground: var(--neutral-100);
@@ -108,6 +110,11 @@
   --font-sans: var(--font-helvetica);
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
+}
+
+html,
+body {
+  overscroll-behavior-y: none;
 }
 
 body {

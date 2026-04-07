@@ -2,6 +2,7 @@
 import { Navbar } from "@/shared/layout/navbar";
 import { Footer } from "@/shared/layout/footer";
 import { GlassWrapper } from "./components/glass-wrapper";
+import { StoreThemeShell } from "./store-theme-shell";
 
 export default async function StoreLayout({
   children,
@@ -9,7 +10,7 @@ export default async function StoreLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <StoreThemeShell>
       <Navbar />
       <main className="relative mt-10 flex flex-1 flex-col overflow-hidden">
         <div className="relative z-10 flex flex-1 flex-col">
@@ -17,6 +18,6 @@ export default async function StoreLayout({
         </div>
       </main>
       <Footer />
-    </div>
+    </StoreThemeShell>
   );
 }

@@ -1,11 +1,10 @@
 // src/shared/layout/footer.tsx
 "use client";
 
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import { useLocale, useTranslations } from "next-intl";
-import { useMounted } from "@/shared/theme/use-mounted";
 import { useStoreThemeTokens } from "@/shared/store-theme";
 
 export function Footer() {
@@ -15,7 +14,16 @@ export function Footer() {
   const t_footer = useTranslations("footer");
 
   return (
-    <footer className="text-foreground" style={{ backgroundColor: t.footerBgSolid }}>
+    <footer
+      className="text-foreground"
+      style={
+        {
+          backgroundColor: t.footerBgSolid,
+          color: t.footerText,
+          ["--footerTextMuted" as const]: t.footerTextMuted,
+        } as CSSProperties
+      }
+    >
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           {/* Left: logo */}
@@ -35,7 +43,7 @@ export function Footer() {
           <div className="grid min-w-0 flex-1 grid-cols-2 gap-6 sm:grid-cols-4">
           <div>
             <h3 className="mb-3 text-sm font-medium">{t_footer("help")}</h3>
-            <ul className="space-y-1.5 text-xs text-muted-foreground">
+            <ul className="space-y-1.5 text-xs text-[color:var(--footerTextMuted)]">
               <li>
                 <Link href={`${prefix}/faq`} className="hover:text-foreground">
                   {t_footer("faq")}
@@ -60,7 +68,7 @@ export function Footer() {
           </div>
           <div>
             <h3 className="mb-3 text-sm font-medium">{t_footer("company")}</h3>
-            <ul className="space-y-1.5 text-xs text-muted-foreground">
+            <ul className="space-y-1.5 text-xs text-[color:var(--footerTextMuted)]">
               <li>
                 <Link href={`${prefix}/about`} className="hover:text-foreground">
                   {t_footer("aboutUs")}
@@ -85,7 +93,7 @@ export function Footer() {
           </div>
           <div>
             <h3 className="mb-3 text-sm font-medium">{t_footer("collections")}</h3>
-            <ul className="space-y-1.5 text-xs text-muted-foreground">
+            <ul className="space-y-1.5 text-xs text-[color:var(--footerTextMuted)]">
               <li>
                 <Link href={`${prefix}/catalog?badge=NEW&page=1`} className="hover:text-foreground">
                   {t_footer("newCollection")}
@@ -105,7 +113,7 @@ export function Footer() {
           </div>
           <div>
             <h3 className="mb-3 text-sm font-medium">{t_footer("followUs")}</h3>
-            <ul className="space-y-1.5 text-xs text-muted-foreground">
+            <ul className="space-y-1.5 text-xs text-[color:var(--footerTextMuted)]">
               <li>
                 <a
                   href="https://www.instagram.com/predators_boutique/"
@@ -143,10 +151,10 @@ export function Footer() {
       </div>
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-[color:var(--footerTextMuted)]">
             {t_footer("rights")}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-[color:var(--footerTextMuted)]">
             {t_footer("designedIn")}
           </p>
         </div>

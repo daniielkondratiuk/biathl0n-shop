@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
+import { useStoreThemeTokens } from "@/shared/store-theme";
 
 interface UserAvatarDropdownProps {
   userName: string | null;
@@ -17,6 +18,7 @@ export function UserAvatarDropdown({
 }: UserAvatarDropdownProps) {
   const locale = useLocale();
   const t_nav = useTranslations("nav");
+  const themeTokens = useStoreThemeTokens();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -56,51 +58,69 @@ export function UserAvatarDropdown({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-accent-foreground text-[10px] font-medium transition hover:opacity-90"
+        className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-medium transition hover:opacity-90"
+        style={{
+          backgroundColor: themeTokens.primary,
+          color: themeTokens.white,
+        }}
         aria-label={t_nav("userMenu")}
       >
         {initials}
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full mt-2 w-56 rounded-lg border border-border bg-card shadow-lg">
-          <div className="px-4 py-3 border-b border-border">
-            <p className="text-sm font-medium text-foreground">{userName}</p>
-            <p className="text-xs text-muted-foreground">{userEmail}</p>
+        <div
+          className="absolute left-0 top-full z-50 mt-2 w-56 rounded-lg border shadow-lg"
+          style={{
+            backgroundColor: themeTokens.cardBg,
+            borderColor: themeTokens.border,
+            color: themeTokens.textPrimary,
+          }}
+        >
+          <div className="px-4 py-3 border-b" style={{ borderColor: themeTokens.border }}>
+            <p className="text-sm font-medium">{userName}</p>
+            <p className="text-xs" style={{ color: themeTokens.textSecondary }}>
+              {userEmail}
+            </p>
           </div>
           <div className="py-2">
             <Link
               href={`/${locale}/dashboard/profile`}
               onClick={() => setIsOpen(false)}
-              className="block px-4 py-2 text-sm text-foreground transition hover:bg-muted"
+              className="block px-4 py-2 text-sm transition"
+              style={{ color: themeTokens.textPrimary }}
             >
               {t_nav("profile")}
             </Link>
             <Link
               href={`/${locale}/dashboard/orders`}
               onClick={() => setIsOpen(false)}
-              className="block px-4 py-2 text-sm text-foreground transition hover:bg-muted"
+              className="block px-4 py-2 text-sm transition"
+              style={{ color: themeTokens.textPrimary }}
             >
               {t_nav("orders")}
             </Link>
             <Link
               href={`/${locale}/dashboard/addresses`}
               onClick={() => setIsOpen(false)}
-              className="block px-4 py-2 text-sm text-foreground transition hover:bg-muted"
+              className="block px-4 py-2 text-sm transition"
+              style={{ color: themeTokens.textPrimary }}
             >
               {t_nav("addresses")}
             </Link>
             <Link
               href={`/${locale}/dashboard/payment-settings`}
               onClick={() => setIsOpen(false)}
-              className="block px-4 py-2 text-sm text-foreground transition hover:bg-muted"
+              className="block px-4 py-2 text-sm transition"
+              style={{ color: themeTokens.textPrimary }}
             >
               {t_nav("paymentSettings")}
             </Link>
-            <div className="border-t border-border my-2" />
+            <div className="border-t my-2" style={{ borderColor: themeTokens.border }} />
             <button
               onClick={handleLogout}
-              className="block w-full px-4 py-2 text-left text-sm text-foreground transition hover:bg-muted"
+              className="block w-full px-4 py-2 text-left text-sm transition"
+              style={{ color: themeTokens.textPrimary }}
             >
               {t_nav("logout")}
             </button>

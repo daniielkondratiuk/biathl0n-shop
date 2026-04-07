@@ -1,14 +1,13 @@
 // src/shared/store-theme/index.ts
 /**
- * Store Theme Module - Single Source of Truth for Frontstore Theme
+ * Frontstore Theme Module - Single Source of Truth for frontstore theme.
  *
- * POLICY: Do NOT import useTheme() from next-themes directly in frontstore components.
- * Always use useStoreThemeTokens() from this module instead.
- *
- * This module provides:
- * - useStoreThemeTokens(): Hook returning all theme-dependent values
- * - StoreThemeTokens: TypeScript interface for the tokens object
- * - ResolvedTheme: Type for "light" | "dark"
+ * Project-facing modes are `theme_first` / `theme_secondary`.
+ * Any light/dark implementation details are contained within this module.
  */
-export { useStoreThemeTokens } from "./tokens";
-export type { StoreThemeTokens, ResolvedTheme } from "./tokens";
+export { useStoreThemeTokens } from "./use-store-theme";
+export type { StoreThemeTokens, ResolvedTheme } from "./use-store-theme";
+export { useFrontstoreThemeMode } from "./mode";
+export type { FrontstoreThemeMode } from "./mode";
+export { getFrontstoreCssVars } from "./css-vars";
+export { getFrontstorePrimary } from "./values";

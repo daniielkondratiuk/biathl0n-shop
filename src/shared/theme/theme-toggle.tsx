@@ -1,21 +1,24 @@
 // src/shared/theme/theme-toggle.tsx
 "use client";
 
-import { useTheme } from "next-themes";
 import { useMounted } from "./use-mounted";
+import {
+  getFrontstorePrimary,
+  useFrontstoreThemeMode,
+  useStoreThemeTokens,
+} from "@/shared/store-theme";
 
 /**
  * Theme toggle button component.
- * Uses next-themes useTheme() hook and the useMounted guard to prevent hydration mismatches.
- *
- * Features:
- * - Renders a placeholder until mounted to avoid hydration mismatch
- * - Uses resolvedTheme for accurate current theme (handles "system" → actual theme)
- * - Toggles between light and dark themes
+ * Uses project theme semantics (`theme_first` / `theme_secondary`) and a mounted guard
+ * to prevent hydration mismatches.
  */
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
   const mounted = useMounted();
+  const t = useStoreThemeTokens();
+  const frontstoreTheme = useFrontstoreThemeMode();
+  const oppositeMode = t.mode === "theme_first" ? "theme_secondary" : "theme_first";
+  const innerColor = getFrontstorePrimary(oppositeMode);
 
   // Render placeholder until mounted to avoid hydration mismatch
   if (!mounted) {
@@ -23,26 +26,33 @@ export function ThemeToggle() {
       <button
         type="button"
         aria-label="Toggle theme"
-        className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm transition hover:bg-muted"
+        className="inline-flex h-6 w-6 items-center justify-center rounded-full border shadow-sm transition"
+        style={{
+          backgroundColor: "rgba(255, 255, 255, 0.08)",
+          borderColor: "rgba(255, 255, 255, 0.18)",
+          color: t.white,
+        }}
       >
         <span className="h-3 w-3 rounded-full bg-neutral-500" />
       </button>
     );
   }
 
-  const isDark = resolvedTheme === "dark";
-
   return (
     <button
       type="button"
       aria-label="Toggle theme"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm transition hover:bg-muted"
+      onClick={frontstoreTheme.toggleMode}
+      className="inline-flex h-6 w-6 items-center justify-center rounded-full border shadow-sm transition"
+      style={{
+        backgroundColor: t.primary,
+        borderColor: t.primary,
+        color: t.white,
+      }}
     >
       <span
-        className={`h-3 w-3 rounded-full transition ${
-          isDark ? "bg-[#F9F9F3]" : "bg-neutral-900"
-        }`}
+        className="h-3 w-3 rounded-full transition"
+        style={{ backgroundColor: innerColor }}
       />
     </button>
   );

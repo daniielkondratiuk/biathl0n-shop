@@ -26,7 +26,7 @@ export function ProductGrid({
 
   if (!products.length) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
         <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
           <h3 className="text-xl font-semibold text-foreground">
             {t("catalog.empty.title")}
@@ -48,7 +48,7 @@ export function ProductGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
@@ -62,7 +62,7 @@ export function ProductGridSkeleton({
   pageSize: number;
 }): ReactElement {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
       {Array.from({ length: pageSize }).map((_, index) => (
         <div key={index} className="space-y-3">
           <Skeleton className="aspect-square w-full rounded-2xl" />

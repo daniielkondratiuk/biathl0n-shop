@@ -21,12 +21,6 @@ interface FilterDrawerProps {
   colors?: Color[];
 }
 
-// Solid background colors matching header/footer
-const PANEL_COLORS = {
-  light: "#f9f9f3",
-  dark: "#20223c",
-} as const;
-
 export function FilterDrawer({
   isOpen,
   onClose,
@@ -34,7 +28,7 @@ export function FilterDrawer({
   colors = [],
 }: FilterDrawerProps) {
   const t = useTranslations("filters");
-  const { isDark, mounted } = useStoreThemeTokens();
+  const themeTokens = useStoreThemeTokens();
 
   // Handle escape key
   const handleEscape = useCallback(
@@ -61,9 +55,12 @@ export function FilterDrawer({
     };
   }, [isOpen, handleEscape]);
 
-  // Solid background style (matching header/footer)
-  const panelStyle = mounted
-    ? { backgroundColor: isDark ? PANEL_COLORS.dark : PANEL_COLORS.light }
+  const panelStyle = themeTokens.mounted
+    ? {
+        backgroundColor: themeTokens.cardBg,
+        color: themeTokens.textPrimary,
+        borderColor: themeTokens.border,
+      }
     : undefined;
 
   return (

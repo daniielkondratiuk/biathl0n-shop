@@ -26,12 +26,6 @@ interface CatalogLayoutClientProps {
 // Media query breakpoint (lg = 1024px)
 const LG_BREAKPOINT = 1024;
 
-// Solid background colors matching header/footer
-const PANEL_COLORS = {
-  light: "#f9f9f3",
-  dark: "#20223c",
-} as const;
-
 export function CatalogLayoutClient({
   categories,
   colors = [],
@@ -39,7 +33,7 @@ export function CatalogLayoutClient({
   children,
 }: CatalogLayoutClientProps) {
   const t = useTranslations("catalog");
-  const { isDark, mounted } = useStoreThemeTokens();
+  const themeTokens = useStoreThemeTokens();
 
   // Desktop sidebar state (persists) - closed by default
   const [isDesktopFilterOpen, setIsDesktopFilterOpen] = useState(false);
@@ -79,9 +73,12 @@ export function CatalogLayoutClient({
   // For the toggle button, show current state based on device
   const isFilterVisible = isMobile ? isMobileDrawerOpen : isDesktopFilterOpen;
 
-  // Solid background style (matching header/footer)
-  const panelStyle = mounted
-    ? { backgroundColor: isDark ? PANEL_COLORS.dark : PANEL_COLORS.light }
+  const panelStyle = themeTokens.mounted
+    ? {
+        backgroundColor: themeTokens.cardBg,
+        color: themeTokens.textPrimary,
+        borderColor: themeTokens.border,
+      }
     : undefined;
 
   return (
