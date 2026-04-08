@@ -75,7 +75,7 @@ export function CatalogLayoutClient({
 
   const panelStyle = themeTokens.mounted
     ? {
-        backgroundColor: themeTokens.cardBg,
+        backgroundColor: "var(--store-filter-panel-bg)",
         color: themeTokens.textPrimary,
         borderColor: themeTokens.border,
       }

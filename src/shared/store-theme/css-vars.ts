@@ -9,6 +9,14 @@ export function getFrontstoreCssVars(
   t: StoreThemeTokens,
 ): React.CSSProperties & CssVars {
   return {
+    "--store-bg-image": t.backgroundImage,
+    "--store-snow-image": `url("${t.snowImage}")`,
+    "--store-header-bg": t.headerBg,
+    "--store-header-text": t.headerText,
+    "--store-nav-link-bg": t.navLinkBg,
+    "--store-filter-panel-bg": t.filterPanelBg,
+    "--store-footer-bg": t.footerBg,
+    "--store-footer-text": t.footerText,
     "--store-pattern-opacity": String(t.patternOpacity),
     "--store-pattern-size-px": `${t.patternSizePx}px`,
     "--store-pattern-base-bg": t.patternBaseBg,

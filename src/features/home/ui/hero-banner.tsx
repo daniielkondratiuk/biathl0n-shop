@@ -268,7 +268,7 @@ export function HeroBanner({ products }: HeroBannerProps) {
           <div
             className="relative h-[500px] w-full overflow-hidden rounded-2xl"
             style={{
-              backgroundImage: "url('/hero/hero-banner-background.png')",
+              backgroundImage: "url('/hero/1.png')",
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}

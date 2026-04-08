@@ -2,15 +2,34 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useStoreThemeTokens } from "@/shared/store-theme";
+import type React from "react";
 
-export function BackgroundParallax() {
+export type BackgroundParallaxProps = {
+  imageSrc?: string;
+  speed?: number;
+  className?: string;
+  style?: React.CSSProperties;
+  repeat?: React.CSSProperties["backgroundRepeat"];
+  size?: React.CSSProperties["backgroundSize"];
+  position?: React.CSSProperties["backgroundPosition"];
+  baseColor?: string;
+};
+
+export function BackgroundParallax({
+  imageSrc,
+  speed = 0.3,
+  className = "pointer-events-none fixed inset-0 -z-10",
+  style,
+  repeat = "no-repeat",
+  size = "cover",
+  position = "center",
+  baseColor = "transparent",
+}: BackgroundParallaxProps) {
   const bgRef = useRef<HTMLDivElement>(null);
   const scrollY = useRef(0);
   const rafId = useRef<number | null>(null);
 
-  // Get theme tokens from single source of truth
-  const t = useStoreThemeTokens();
+  if (!imageSrc) return null;
 
   useEffect(() => {
     const bgElement = bgRef.current;
@@ -22,7 +41,7 @@ export function BackgroundParallax() {
 
       // Parallax calculation: scroll-based only
       // Background moves at ~30% of scroll speed
-      const bgY = scrollY.current * 0.3;
+      const bgY = scrollY.current * speed;
 
       bgElement.style.setProperty("--bg-y", String(bgY));
 
@@ -60,22 +79,21 @@ export function BackgroundParallax() {
   return (
     <div
       ref={bgRef}
-      className="pointer-events-none fixed inset-0 -z-10"
+      className={className}
       aria-hidden="true"
     >
       {/* Pattern overlay */}
       <div
         className="absolute inset-0"
         style={{
-          backgroundColor: t.patternBaseBg,
-          backgroundImage: "url('/background-main.png')",
-          backgroundRepeat: "repeat",
-          backgroundSize: `${t.patternSizePx}px ${t.patternSizePx}px`,
-          backgroundPosition: "0 calc(var(--bg-y, 0) * 1px)",
-          opacity: 0.50,
+          backgroundColor: baseColor,
+          backgroundImage: `url('${imageSrc}')`,
+          backgroundRepeat: repeat,
+          backgroundSize: size,
+          backgroundPosition: position,
+          ...style,
         }}
       />
-      {/* <div className="absolute inset-0 bg-black/40" /> */}
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import type React from "react";
 import { usePathname } from "next/navigation";
 import { getFrontstoreCssVars, useStoreThemeTokens } from "@/shared/store-theme";
+import { BackgroundParallax } from "@/shared/ui/background-parallax";
 
 export function StoreThemeShell({ children }: { children: React.ReactNode }) {
   const t = useStoreThemeTokens();
@@ -14,16 +15,29 @@ export function StoreThemeShell({ children }: { children: React.ReactNode }) {
   return (
     <div
       data-frontstore-theme="store"
-      className={["flex min-h-screen flex-col", t.isSecondary ? "dark" : ""]
+      className={["relative flex min-h-screen flex-col", t.isSecondary ? "dark" : ""]
         .filter(Boolean)
         .join(" ")}
       style={{
         ...cssVars,
         backgroundColor: pageSurfaceBg,
+        backgroundImage: "var(--store-bg-image)",
+        backgroundSize: "cover",
+        backgroundPosition: "top -250px center",
+        backgroundRepeat: "no-repeat",
         color: t.textPrimary,
       }}
     >
-      {children}
+      <BackgroundParallax
+        imageSrc={t.snowImage}
+        speed={0.5}
+        className="pointer-events-none absolute inset-0 z-0"
+        repeat="no-repeat"
+        size="contain"
+        position="center calc(var(--bg-y, 0) * 1px)"
+        baseColor="transparent"
+      />
+      <div className="relative z-10 flex min-h-screen flex-col">{children}</div>
     </div>
   );
 }
