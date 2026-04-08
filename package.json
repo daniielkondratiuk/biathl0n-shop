@@ -9,10 +9,10 @@
     "lint": "eslint",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "db:seed": "ts-node prisma/seed.ts",
-    "seed-products": "ts-node scripts/seed-products.ts",
-    "seed:colors": "ts-node scripts/seed-colors.ts",
-    "migrate:image-roles": "ts-node scripts/migrate-image-roles.ts",
+    "db:seed": "tsx prisma/seed.ts",
+    "seed-products": "tsx scripts/seed-products.ts",
+    "seed:colors": "tsx scripts/seed-colors.ts",
+    "migrate:image-roles": "tsx scripts/migrate-image-roles.ts",
     "stripe:listen": "stripe listen --forward-to localhost:3000/api/stripe/webhook"
   },
   "dependencies": {
@@ -42,11 +42,15 @@
     "sharp": "^0.34.5",
     "stripe": "^20.0.0",
     "tailwind-merge": "^3.4.0",
+    "tsx": "^4.21.0",
     "zod": "^4.1.13",
     "zustand": "^5.0.9"
   },
   "overrides": {
     "minimatch": "10.2.2"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
