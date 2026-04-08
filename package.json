@@ -47,7 +47,7 @@
     "zustand": "^5.0.9"
   },
   "overrides": {
-    "minimatch": "10.2.2"
+    "minimatch": "10.2.5"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
