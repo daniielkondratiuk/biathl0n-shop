@@ -87,15 +87,21 @@ export function ProductCard({ product }: { product: ProductWithRelations }) {
       className="group flex flex-col cursor-pointer"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      style={{ borderColor: themeTokens.border }}
     >
       {/* Product Image Container - Square */}
       <div
-        className="relative aspect-square w-full overflow-hidden rounded-2xl border"
+        className="relative aspect-square w-full overflow-hidden rounded-2xl"
         style={{
           backgroundColor: themeTokens.cardBg,
-          borderColor: themeTokens.border,
         }}
       >
+        <div
+          className="absolute inset-0 z-[5] opacity-0 transition-opacity duration-200 group-hover:opacity-100 pointer-events-none"
+          style={{
+            backgroundColor: "var(--store-nav-link-bg)",
+          }}
+        />
         <div
           className={`absolute inset-0 z-0 transition-opacity duration-300 ease-out ${
             hover && mainDetailImageUrl ? "opacity-0" : "opacity-100"
@@ -153,17 +159,19 @@ export function ProductCard({ product }: { product: ProductWithRelations }) {
       {/* Product Info */}
       <div className="flex flex-col gap-1 pt-3">
         {/* Title and Price - Same Line */}
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-start justify-between gap-2">
+          {/* TITLE */}
           <div
-            className="max-w-full uppercase tracking-wide text-sm font-semibold transition-colors cursor-pointer"
+            className="min-w-0 flex-1 uppercase tracking-wide text-sm font-semibold transition-colors hover:text-accent cursor-pointer"
             style={{ color: themeTokens.textPrimary }}
           >
-            <span className="relative inline-block max-w-full after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-full after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-[100ms] after:linear after:delay-[100ms] group-hover:after:scale-x-100 group-hover:after:delay-0">
-              <span className="block max-w-full truncate">{product.title || product.name}</span>
+            <span className="relative inline-block w-full after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-full after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-[100ms] after:linear after:delay-[100ms] group-hover:after:scale-x-100 group-hover:after:delay-0">
+              <span className="block truncate">{product.title || product.name}</span>
             </span>
           </div>
+          {/* PRICE */}
           <span
-            className="relative inline-block text-sm font-semibold whitespace-nowrap after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-full after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-[100ms] after:linear after:delay-0 group-hover:after:scale-x-100 group-hover:after:delay-[100ms]"
+            className="shrink-0 whitespace-nowrap text-sm font-semibold relative inline-block after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-full after:bg-current after:scale-x-0 after:origin-left after:transition-transform after:duration-[100ms] after:linear after:delay-0 group-hover:after:scale-x-100 group-hover:after:delay-[100ms]"
             style={{ color: themeTokens.textPrimary }}
           >
             {price}

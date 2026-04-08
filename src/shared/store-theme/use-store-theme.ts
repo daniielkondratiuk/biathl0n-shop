@@ -53,6 +53,7 @@ export interface StoreThemeTokens {
   headerSearchBorder: string;
   headerSearchBorderFocus: string;
   navLinkBarBg: string;
+  filterPanelBg: string;
   navLinkText: string;
   navLinkTextMuted: string;
   navLinkTextHover: string;
@@ -68,6 +69,7 @@ export interface StoreThemeTokens {
   patternOpacity: number;
   patternSizePx: number;
   backgroundImage: string;
+  snowImage: string;
 }
 
 const DEFAULT_MODE: FrontstoreThemeMode = "theme_first";

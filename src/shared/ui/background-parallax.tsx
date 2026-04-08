@@ -2,9 +2,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useStoreThemeTokens } from "@/shared/store-theme";
+import type React from "react";
 
-type BackgroundParallaxProps = {
+export type BackgroundParallaxProps = {
   imageSrc?: string;
   speed?: number;
   className?: string;
@@ -16,21 +16,20 @@ type BackgroundParallaxProps = {
 };
 
 export function BackgroundParallax({
-  imageSrc = "/background-first.svg",
+  imageSrc,
   speed = 0.3,
   className = "pointer-events-none fixed inset-0 -z-10",
   style,
-  repeat = "repeat",
-  size,
-  position,
-  baseColor,
+  repeat = "no-repeat",
+  size = "cover",
+  position = "center",
+  baseColor = "transparent",
 }: BackgroundParallaxProps) {
   const bgRef = useRef<HTMLDivElement>(null);
   const scrollY = useRef(0);
   const rafId = useRef<number | null>(null);
 
-  // Get theme tokens from single source of truth
-  const t = useStoreThemeTokens();
+  if (!imageSrc) return null;
 
   useEffect(() => {
     const bgElement = bgRef.current;
@@ -87,13 +86,11 @@ export function BackgroundParallax({
       <div
         className="absolute inset-0"
         style={{
-          backgroundColor: baseColor ?? t.patternBaseBg,
+          backgroundColor: baseColor,
           backgroundImage: `url('${imageSrc}')`,
           backgroundRepeat: repeat,
-          backgroundSize:
-            size ?? (repeat === "repeat" ? `${t.patternSizePx}px ${t.patternSizePx}px` : "cover"),
-          backgroundPosition:
-            position ?? `0 calc(var(--bg-y, 0) * 1px)`,
+          backgroundSize: size,
+          backgroundPosition: position,
           ...style,
         }}
       />

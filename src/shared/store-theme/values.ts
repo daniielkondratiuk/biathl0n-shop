@@ -27,6 +27,7 @@ export type StoreThemeColorTokens = {
   headerSearchBorderFocus: string;
   navLinkBarBg: string;
   navLinkBg: string;
+  filterPanelBg: string;
   navLinkText: string;
   navLinkTextMuted: string;
   navLinkTextHover: string;
@@ -43,6 +44,7 @@ export type StoreThemeColorTokens = {
   // Background / pattern
   patternBaseBg: string;
   backgroundImage: string;
+  snowImage: string;
 };
 
 /**
@@ -70,6 +72,7 @@ export const FRONTSTORE_THEME_COLORS: Record<
     footerBgSolid: "#a5b4fc",
     patternBaseBg: "#a5b4fc",
     backgroundImage: 'url("/background-first.svg")',
+    snowImage: "/snow-first.svg",
 
     headerBg: "rgba(179, 209, 237, 1)",
     headerText: "rgba(23, 23, 23, 1)",
@@ -83,6 +86,7 @@ export const FRONTSTORE_THEME_COLORS: Record<
 
     navLinkBg: "rgba(179, 209, 237, 0.5)",
     navLinkBarBg: "rgba(179, 209, 237, 0.5)",
+    filterPanelBg: "rgba(179, 209, 237, 0.5)",
     navLinkText: "color-mix(in oklab, var(--foreground) 70%, transparent)",
     navLinkTextMuted: "color-mix(in oklab, var(--foreground) 55%, transparent)",
     navLinkTextHover: "var(--foreground)",
@@ -110,6 +114,7 @@ export const FRONTSTORE_THEME_COLORS: Record<
     footerBgSolid: "#1e1b4b",
     patternBaseBg: "#1e1b4b",
     backgroundImage: 'url("/background-secondary.svg")',
+    snowImage: "/snow-secondary.svg",
 
     headerBg: "rgba(13, 59, 102, 1)",
     headerText: "rgba(245, 245, 245, 1)",
@@ -123,6 +128,7 @@ export const FRONTSTORE_THEME_COLORS: Record<
 
     navLinkBg: "rgba(255, 255, 255, 0.05)",
     navLinkBarBg: "rgba(255, 255, 255, 0.05)",
+    filterPanelBg: "rgba(255, 255, 255, 0.5)",
     navLinkText: "color-mix(in oklab, var(--foreground) 70%, transparent)",
     navLinkTextMuted: "color-mix(in oklab, var(--foreground) 55%, transparent)",
     navLinkTextHover: "var(--foreground)",
@@ -143,10 +149,10 @@ export function getFrontstorePrimary(mode: FrontstoreThemeMode): string {
 
 export const FRONTSTORE_THEME_ASSETS = {
   theme_first: {
-    logoSrc: "/logo-light.svg",
+    logoSrc: "/logo-light.png",
   },
   theme_secondary: {
-    logoSrc: "/logo-dark.svg",
+    logoSrc: "/logo-dark.png",
   },
 } as const;
 

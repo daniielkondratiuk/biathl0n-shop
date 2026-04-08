@@ -1,7 +1,7 @@
 // app/(auth)/layout.tsx
 import { Navbar } from "@/shared/layout/navbar";
 import { Footer } from "@/shared/layout/footer";
-import { BackgroundParallax } from "@/shared/ui/background-parallax";
+import { StoreThemeShell } from "../(store)/store-theme-shell";
 
 export default function AuthLayout({
   children,
@@ -9,9 +9,9 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <StoreThemeShell>
       <Navbar />
-      <main className="relative flex flex-1 flex-col overflow-hidden">
+      <main className="relative mt-10 flex flex-1 flex-col overflow-hidden">
         <div className="relative z-10 flex min-h-0 flex-1">
           <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col">
             <div className="flex flex-1 flex-col items-center justify-center bg-white/5 py-12 shadow-sm shadow-black/20 ring-1 ring-white/10 backdrop-blur-md">
@@ -21,6 +21,6 @@ export default function AuthLayout({
         </div>
       </main>
       <Footer />
-    </div>
+    </StoreThemeShell>
   );
 }

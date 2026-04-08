@@ -5,6 +5,7 @@ import { ProductGrid } from "@/features/products";
 import { Button } from "@/components/ui/button";
 import { getFeaturedProducts, getHeroProducts } from "@/features/products";
 import { HeroBanner } from "./hero-banner";
+import { HeroSlider } from "./hero-slider";
 import { getLocale, getTranslations } from "next-intl/server";
 
 export async function HomePage() {
@@ -19,7 +20,8 @@ export async function HomePage() {
   return (
     <>
       {/* Hero Banner */}
-      <HeroBanner products={heroProducts} />
+      {/* <HeroBanner products={heroProducts} /> */}
+      <HeroSlider />
 
       {/* Best Sellers Section */}
       <section className="py-16">
@@ -120,17 +122,25 @@ export async function HomePage() {
             <div className="relative z-10 flex items-center">
               <div className="flex max-w-2xl flex-col gap-6 px-8 md:px-12">
                 <div className="flex flex-col gap-4">
-                  <p className="bg-gradient-to-b from-accent-red to-accent-orange bg-clip-text text-xl font-medium text-transparent">
-                    {t("modernEssentials")}
-                  </p>
-                  <h2 className="heading-1 text-foreground">
-                    {t("faithMadeWearable")}
-                  </h2>
+                  <div className="flex flex-col gap-2">
+                    <div className="w-fit">
+                      <span className="inline-block bg-black/60 px-4 py-2 text-base font-medium uppercase tracking-widest text-white/90 md:text-lg">
+                        {t("modernEssentials")}
+                      </span>
+                    </div>
+                    <div className="w-fit">
+                      <span className="inline-block bg-black/70 px-4 py-2 text-4xl font-bold uppercase tracking-tight text-white md:text-5xl lg:text-6xl">
+                        {t("faithMadeWearable")}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                <p className="text-2xl text-muted-foreground">
-                  {t("cleanSilhouettes")}
-                </p>
+                <div className="w-fit">
+                  <span className="inline-block bg-black/60 px-4 py-2 text-base font-medium text-white/90 md:text-lg lg:text-xl">
+                    {t("cleanSilhouettes")}
+                  </span>
+                </div>
 
                 <Link href={`${prefix}/catalog`}>
                   <Button variant="primary" size="md" className="w-fit">
