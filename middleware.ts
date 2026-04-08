@@ -38,11 +38,20 @@ export default function middleware(request: NextRequest) {
     return intlMiddleware(request);
   }
 
+  const cookieLocale =
+    request.cookies.get("NEXT_LOCALE")?.value ??
+    request.cookies.get("NEXT_INTL_LOCALE")?.value ??
+    null;
+  const activeLocale =
+    typeof cookieLocale === "string" && isLocale(cookieLocale)
+      ? cookieLocale
+      : defaultLocale;
+
   const url = request.nextUrl.clone();
   if (pathname === "/") {
-    url.pathname = `/${defaultLocale}`;
+    url.pathname = `/${activeLocale}`;
   } else {
-    url.pathname = `/${defaultLocale}${pathname}`;
+    url.pathname = `/${activeLocale}${pathname}`;
   }
   return NextResponse.redirect(url);
 }

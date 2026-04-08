@@ -15,9 +15,8 @@ export function StoreThemeShell({ children }: { children: React.ReactNode }) {
   return (
     <div
       data-frontstore-theme="store"
-      className={["relative flex min-h-screen flex-col", t.isSecondary ? "dark" : ""]
-        .filter(Boolean)
-        .join(" ")}
+      data-store-theme={t.mode}
+      className="relative flex min-h-screen flex-col"
       style={{
         ...cssVars,
         backgroundColor: pageSurfaceBg,

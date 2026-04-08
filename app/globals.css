@@ -67,6 +67,56 @@ html[data-next-theme="dark"] {
   --warning: var(--accent-orange);
 }
 
+/* Storefront themes must not depend on Tailwind/DOM `.dark` mode. */
+[data-frontstore-theme="store"][data-store-theme="theme_first"] {
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --muted: #F1F5F9;
+  --muted-foreground: #475569;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  --border: #1E2A4A;
+  --input: #FFFFFF;
+  --accent: #2563EB;
+  --accent-foreground: #FFFFFF;
+  --ring: #3B82F6;
+  --primary: #0F172A;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #0F172A;
+  --success: #16A34A;
+  --warning: #F59E0B;
+  --danger: #DC2626;
+  --error: #DC2626;
+}
+
+[data-frontstore-theme="store"][data-store-theme="theme_secondary"] {
+  /* Dark winter / blue-toned calibration for readability */
+  --background: #070B1A;
+  --foreground: #F3F7FF;
+  --card: #0B1224;
+  --card-foreground: #F3F7FF;
+  --muted: #0F1B36;
+  --muted-foreground: #A9B4CC;
+  --popover: #0B1224;
+  --popover-foreground: #F3F7FF;
+  --border: #E2E8F0;
+  --input: #0F1B36;
+  --accent: #1A2C5C;
+  --accent-foreground: #F3F7FF;
+  --ring: #93C5FD;
+  --primary: #EAF2FF;
+  --primary-foreground: #070B1A;
+  --secondary: #0F1B36;
+  --secondary-foreground: #EAF2FF;
+  --success: var(--accent-green);
+  --warning: var(--accent-orange);
+  --danger: var(--accent-red);
+  --error: var(--accent-red);
+}
+
 @theme inline {
   /* Neutral color scale */
   --color-neutral-900: var(--neutral-900);
