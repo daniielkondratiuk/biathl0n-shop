@@ -41,6 +41,10 @@
   --danger: #DC2626;         /* red-600 */
   --error: #DC2626;          /* red-600 (alias) */
   --radius: 0.5rem;
+
+  /* Not found page */
+  --not-found-action-bg: rgba(19, 106, 177, 1);
+  --not-found-action-text: rgba(255, 255, 255, 1);
 }
 
 /* Dark semantic palette: supports both next-themes and local shells. */
@@ -173,6 +177,20 @@ body {
   font-family: var(--font-helvetica);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Global not-found background image (mobile-first) */
+.not-found-root {
+  background-image: url("/not-found-mobile.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (min-width: 640px) {
+  .not-found-root {
+    background-image: url("/not-found.png");
+  }
 }
 
 /* Typography utility classes matching Figma design */
