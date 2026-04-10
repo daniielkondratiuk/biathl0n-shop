@@ -121,10 +121,26 @@ model Category {
   slug        String  @unique
   description String?
 
-  products Product[]
+  products     Product[]
+  translations CategoryTranslation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model CategoryTranslation {
+  id          String  @id @default(cuid())
+  categoryId  String
+  locale      String
+  description String?
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([categoryId, locale])
+  @@index([locale])
 }
 
 model Color {

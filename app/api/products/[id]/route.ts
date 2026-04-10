@@ -45,8 +45,8 @@ export async function GET(request: NextRequest, { params }: Params) {
     const locale = detectLocale(request);
     
     // Try as slug first (storefront), then as ID (admin)
-    let product = await getProductBySlug(id, locale);
-    
+    let product: Record<string, unknown> | null = await getProductBySlug(id, locale);
+
     if (!product) {
       // Fallback to admin function (by ID)
       product = await getAdminProductById(id);

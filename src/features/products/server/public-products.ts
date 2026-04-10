@@ -4,6 +4,10 @@ import type { Prisma, Gender, ProductBadge, Size } from "@prisma/client";
 
 export type CatalogSort = "price_asc" | "price_desc" | "newest";
 
+function deduplicateLocales(locale: string, fallback = "en"): string[] {
+  return Array.from(new Set([locale, fallback]));
+}
+
 type TranslationEntry = { locale: string; title: string; description: string | null };
 
 type TranslatableProduct = {
@@ -133,7 +137,7 @@ const getFeaturedProductsCached = unstable_cache(
       category: true,
       translations: {
         where: {
-          locale: { in: [locale, "en"] },
+          locale: { in: deduplicateLocales(locale) },
         },
       },
       colorVariants: {
@@ -197,7 +201,7 @@ export async function getLimitedProducts(limit = 5, locale = "en") {
       category: true,
       translations: {
         where: {
-          locale: { in: [locale, "en"] },
+          locale: { in: deduplicateLocales(locale) },
         },
       },
       colorVariants: {
@@ -261,7 +265,7 @@ export async function getHeroProducts(limit?: number, locale = "en") {
       category: true,
       translations: {
         where: {
-          locale: { in: [locale, "en"] },
+          locale: { in: deduplicateLocales(locale) },
         },
       },
       colorVariants: {
@@ -305,15 +309,38 @@ export async function getHeroProducts(limit?: number, locale = "en") {
   });
 }
 
+function resolveCategoryDescription(
+  categoryTranslations: { locale: string; description: string | null }[] | undefined,
+  locale: string
+): string | null {
+  if (!categoryTranslations || categoryTranslations.length === 0) return null;
+
+  const match = categoryTranslations.find((t) => t.locale === locale);
+  if (match?.description) return match.description;
+
+  const enMatch = categoryTranslations.find((t) => t.locale === "en");
+  if (enMatch?.description) return enMatch.description;
+
+  return null;
+}
+
 const getProductBySlugCached = unstable_cache(
   async (slug: string, locale: string) => {
   const product = await prisma.product.findUnique({
     where: { slug },
     include: {
-      category: true,
+      category: {
+        include: {
+          translations: {
+            where: {
+              locale: { in: deduplicateLocales(locale) },
+            },
+          },
+        },
+      },
       translations: {
         where: {
-          locale: { in: [locale, "en"] },
+          locale: { in: deduplicateLocales(locale) },
         },
       },
       colorVariants: {
@@ -356,10 +383,15 @@ const getProductBySlugCached = unstable_cache(
 
   // Resolve translated fields
   const { title, description } = resolveTranslatedFields(product, locale);
+  const categoryDescription = resolveCategoryDescription(
+    product.category.translations,
+    locale
+  );
   return {
     ...product,
     title,
     description,
+    categoryDescription,
   };
   },
   ["public-product-by-slug"],
@@ -558,7 +590,7 @@ async function getCatalogProductsImpl(params: CatalogProductsParams) {
         category: true,
         translations: {
           where: {
-            locale: { in: [locale, "en"] },
+            locale: { in: deduplicateLocales(locale) },
           },
         },
         colorVariants: {

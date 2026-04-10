@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/shared/theme";
 import { CartProvider } from "@/features/cart";
@@ -36,8 +37,10 @@ export default function RootLayout({
         suppressHydrationWarning
         className="min-h-screen text-foreground antialiased"
       >
-        <script
+        <Script
+          id="organization-ld-json"
           type="application/ld+json"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",

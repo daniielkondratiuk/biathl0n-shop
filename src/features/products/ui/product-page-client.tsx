@@ -31,6 +31,7 @@ type ProductPageProduct = {
   badge?: string | null;
   gender?: string | null;
   description?: string | null;
+  categoryDescription?: string | null;
   colorVariants?: ProductPageColorVariant[];
 };
 
@@ -238,6 +239,9 @@ export function ProductPageClient({
                     <p className="mb-4 text-muted-foreground">
                       {t("noDescription")}
                     </p>
+                  )}
+                  {product.categoryDescription && (
+                    <p className="mt-2 whitespace-pre-wrap">{product.categoryDescription}</p>
                   )}
                 </ProductInfoSection>
 

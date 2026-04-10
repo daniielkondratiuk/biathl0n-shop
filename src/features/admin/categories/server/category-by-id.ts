@@ -7,6 +7,9 @@ const updateCategorySchema = z.object({
   slug: z.string().min(1).optional(),
   description: z.string().optional(),
   nameFr: z.string().trim().optional().nullable(),
+  translations: z.record(z.string(), z.object({
+    description: z.string().nullable().optional(),
+  })).optional(),
 });
 
 export interface UpdateCategoryInput {
@@ -14,6 +17,7 @@ export interface UpdateCategoryInput {
   slug?: string;
   description?: string;
   nameFr?: string | null;
+  translations?: Record<string, { description?: string | null }>;
 }
 
 export interface UpdateCategoryError {
@@ -35,7 +39,7 @@ export async function updateCategoryById(
     };
   }
 
-  const { nameFr, ...rest } = parsed.data;
+  const { nameFr, translations, ...rest } = parsed.data;
   const data: Record<string, unknown> = { ...rest };
 
   if (Object.prototype.hasOwnProperty.call(parsed.data, "nameFr")) {
@@ -48,6 +52,26 @@ export async function updateCategoryById(
     where: { id },
     data,
   });
+
+  if (translations) {
+    for (const [locale, value] of Object.entries(translations)) {
+      const desc = value.description && value.description.trim().length > 0
+        ? value.description.trim()
+        : null;
+
+      if (desc) {
+        await prisma.categoryTranslation.upsert({
+          where: { categoryId_locale: { categoryId: id, locale } },
+          create: { categoryId: id, locale, description: desc },
+          update: { description: desc },
+        });
+      } else {
+        await prisma.categoryTranslation.deleteMany({
+          where: { categoryId: id, locale },
+        });
+      }
+    }
+  }
 
   return { category: updated };
 }
