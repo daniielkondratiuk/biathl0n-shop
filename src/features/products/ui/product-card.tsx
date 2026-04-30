@@ -1,7 +1,6 @@
 // src/features/products/ui/product-card.tsx
 "use client";
 
-import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import type { Product, Category, ProductImage } from "@/shared/types/prisma";
@@ -37,7 +36,6 @@ const BADGE_VARIANTS: Record<string, "limited" | "new" | "sale" | "bestseller" |
 };
 
 export function ProductCard({ product }: { product: ProductWithRelations }) {
-  const [hover, setHover] = useState(false);
   const locale = useLocale();
   const tCart = useTranslations("cart");
   const tCatalog = useTranslations("catalog");
@@ -50,9 +48,18 @@ export function ProductCard({ product }: { product: ProductWithRelations }) {
   // Find MAIN and MAIN_DETAIL images (sorted by role)
   const mainImage = images.find((i) => i.role === "MAIN");
   const mainDetailImage = images.find((i) => i.role === "MAIN_DETAIL");
+  const productPageImageOrder = [...images].sort((a, b) => {
+    const roleOrder: Record<string, number> = { MAIN: 0, MAIN_DETAIL: 1, GALLERY: 2 };
+    const aOrder = roleOrder[String(a.role)] ?? 2;
+    const bOrder = roleOrder[String(b.role)] ?? 2;
+    if (aOrder !== bOrder) return aOrder - bOrder;
+    return (a.order || 0) - (b.order || 0);
+  });
+  const productSpecificHoverImageUrl =
+    product.slug === "biathlon-culture-hoodie1" ? productPageImageOrder[1]?.url : null;
   
   const mainImageUrl = mainImage?.url || images[0]?.url || "";
-  const mainDetailImageUrl = mainDetailImage?.url || null;
+  const mainDetailImageUrl = productSpecificHoverImageUrl || mainDetailImage?.url || null;
 
   // Get base price
   const basePrice = product.basePrice || product.price || 0;
@@ -85,8 +92,6 @@ export function ProductCard({ product }: { product: ProductWithRelations }) {
     <Link
       href={`/product/${product.slug}`}
       className="group flex flex-col cursor-pointer"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
       style={{ borderColor: themeTokens.border }}
     >
       {/* Product Image Container - Square */}
@@ -104,7 +109,7 @@ export function ProductCard({ product }: { product: ProductWithRelations }) {
         />
         <div
           className={`absolute inset-0 z-0 transition-opacity duration-300 ease-out ${
-            hover && mainDetailImageUrl ? "opacity-0" : "opacity-100"
+            mainDetailImageUrl ? "opacity-100 group-hover:opacity-0" : "opacity-100"
           }`}
         >
           <SafeImage
@@ -119,9 +124,7 @@ export function ProductCard({ product }: { product: ProductWithRelations }) {
         </div>
         {mainDetailImageUrl && (
           <div
-            className={`absolute inset-0 z-10 transition-opacity duration-300 ease-out ${
-              hover ? "opacity-100" : "opacity-0"
-            }`}
+            className="absolute inset-0 z-10 opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
           >
             <SafeImage
               src={mainDetailImageUrl}

@@ -249,13 +249,13 @@ export function ProductPageClient({
                   <div className="space-y-3">
                     <div>
                       <h4 className="mb-1 font-medium">{t("shipping")}</h4>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="whitespace-pre-wrap">
                         {t("freeShippingOver")}
                       </p>
                     </div>
                     <div>
                       <h4 className="mb-1 font-medium">{t("returns")}</h4>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="whitespace-pre-wrap">
                         {t("easyReturns")}
                       </p>
                     </div>
@@ -263,7 +263,7 @@ export function ProductPageClient({
                 </ProductInfoSection>
 
                 <ProductInfoSection title={t("reviews")}>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="whitespace-pre-wrap">
                     {t("noReviews")}
                   </p>
                 </ProductInfoSection>
