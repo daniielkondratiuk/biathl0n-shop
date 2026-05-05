@@ -59,7 +59,9 @@ export function NavbarClient({ user, categories, enabledLocales }: NavbarClientP
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [isShopMenuDismissed, setIsShopMenuDismissed] = useState(false);
+  const [isShopMenuOpen, setIsShopMenuOpen] = useState(false);
+  const [isShopMenuSuppressedUntilLeave, setIsShopMenuSuppressedUntilLeave] = useState(false);
+  const shopMenuCloseTimerRef = useRef<number | null>(null);
   const searchWrapRef = useRef<HTMLDivElement | null>(null);
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const cartItems = useCartStore((state) => state.items);
@@ -137,12 +139,6 @@ export function NavbarClient({ user, categories, enabledLocales }: NavbarClientP
   }, [pathname, searchParams]);
 
   useEffect(() => {
-    if (pathname.endsWith("/catalog") && searchParams.has("category")) {
-      setIsShopMenuDismissed(true);
-    }
-  }, [pathname, searchParams]);
-
-  useEffect(() => {
     if (!isSearchOpen) return;
 
     const opts: AddEventListenerOptions = { capture: true };
@@ -195,7 +191,58 @@ export function NavbarClient({ user, categories, enabledLocales }: NavbarClientP
     ? cartItems.reduce((sum, item) => sum + item.quantity, 0)
     : 0;
 
+  const categoryLabelByLocale: Record<string, Record<string, string>> = {
+    en: {
+      beanies: "Beanies",
+      cap: "Caps",
+      hoodie: "Hoodies",
+      jogger: "Joggers",
+      sweatshirt: "Sweatshirts",
+      "t-shirt": "T-shirts",
+      "women-t-shirt": "Women's T-shirts",
+    },
+    fr: {
+      beanies: "Bonnets",
+      cap: "Casquettes",
+      hoodie: "Sweats à capuche",
+      jogger: "Joggers",
+      sweatshirt: "Sweatshirts",
+      "t-shirt": "T-shirts",
+      "women-t-shirt": "T-shirts femme",
+    },
+    de: {
+      beanies: "Beanies",
+      cap: "Caps",
+      hoodie: "Hoodies",
+      jogger: "Jogginghosen",
+      sweatshirt: "Sweatshirts",
+      "t-shirt": "T-Shirts",
+      "women-t-shirt": "Damen-T-Shirts",
+    },
+    es: {
+      beanies: "Gorros",
+      cap: "Gorras",
+      hoodie: "Sudaderas con capucha",
+      jogger: "Joggers",
+      sweatshirt: "Sudaderas",
+      "t-shirt": "Camisetas",
+      "women-t-shirt": "Camisetas mujer",
+    },
+    it: {
+      beanies: "Berretti",
+      cap: "Cappellini",
+      hoodie: "Felpe con cappuccio",
+      jogger: "Joggers",
+      sweatshirt: "Felpe",
+      "t-shirt": "T-shirt",
+      "women-t-shirt": "T-shirt donna",
+    },
+  };
+
   const getCategoryLabel = (category: Category) => {
+    const localizedLabel = categoryLabelByLocale[locale]?.[category.slug];
+    if (localizedLabel) return localizedLabel;
+
     if (locale === "fr") {
       const nameFr = ((category as Category & { nameFr?: string | null }).nameFr ?? "").trim();
       return nameFr || category.name;
@@ -203,12 +250,33 @@ export function NavbarClient({ user, categories, enabledLocales }: NavbarClientP
     return category.name;
   };
 
-  const handleShopMenuLinkClick = () => {
-    setIsShopMenuDismissed(true);
+  const clearShopMenuCloseTimer = () => {
+    if (shopMenuCloseTimerRef.current) {
+      window.clearTimeout(shopMenuCloseTimerRef.current);
+      shopMenuCloseTimerRef.current = null;
+    }
   };
 
-  const isCatalogPage = pathname.endsWith("/catalog");
-  const isShopMenuHidden = isShopMenuDismissed || isCatalogPage;
+  const openShopMenu = () => {
+    clearShopMenuCloseTimer();
+    if (isShopMenuSuppressedUntilLeave) return;
+    setIsShopMenuOpen(true);
+  };
+
+  const closeShopMenuAfterNavigationClick = () => {
+    clearShopMenuCloseTimer();
+    setIsShopMenuOpen(false);
+    setIsShopMenuSuppressedUntilLeave(true);
+  };
+
+  const scheduleShopMenuCloseAfterLeave = () => {
+    clearShopMenuCloseTimer();
+    shopMenuCloseTimerRef.current = window.setTimeout(() => {
+      setIsShopMenuOpen(false);
+      setIsShopMenuSuppressedUntilLeave(false);
+      shopMenuCloseTimerRef.current = null;
+    }, 320);
+  };
 
   return (
     <div className="sticky top-0 z-50">
@@ -313,13 +381,18 @@ export function NavbarClient({ user, categories, enabledLocales }: NavbarClientP
             return (
               <li
                 key={item.href}
-                className="group relative"
-                onMouseLeave={() => isShop && setIsShopMenuDismissed(false)}
+                className="relative"
+                onMouseEnter={() => {
+                  if (isShop) openShopMenu();
+                }}
+                onMouseLeave={() => {
+                  if (isShop) scheduleShopMenuCloseAfterLeave();
+                }}
               >
                 {isShop ? (
                   <Link
                     href={href}
-                    onClick={handleShopMenuLinkClick}
+                    onClick={closeShopMenuAfterNavigationClick}
                     className={`relative inline-flex rounded-full px-3 py-1 text-sm font-medium uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current/40 focus-visible:ring-offset-0 hover:bg-[color:var(--store-nav-link-bg)] ${
                       isActive ? "bg-[color:var(--store-nav-link-bg)]" : ""
                     }`}
@@ -340,10 +413,12 @@ export function NavbarClient({ user, categories, enabledLocales }: NavbarClientP
 
                 {isShop && categories.length > 0 && (
                   <div
-                    className={`pointer-events-none absolute left-0 top-full z-50 w-64 pt-3 transition-all duration-300 ease-out ${
-                      isShopMenuHidden
-                        ? "translate-y-1 opacity-0"
-                        : "-translate-y-2 opacity-0 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100"
+                    onMouseEnter={openShopMenu}
+                    onMouseLeave={scheduleShopMenuCloseAfterLeave}
+                    className={`absolute left-0 top-full z-50 w-64 pt-3 transition-all duration-300 ease-out ${
+                      isShopMenuOpen
+                        ? "pointer-events-auto translate-y-0 opacity-100"
+                        : "pointer-events-none -translate-y-2 opacity-0"
                     }`}
                   >
                     <div className="rounded-xl bg-background/65 p-2 text-foreground shadow-xl shadow-black/15 backdrop-blur-xl">
@@ -352,7 +427,7 @@ export function NavbarClient({ user, categories, enabledLocales }: NavbarClientP
                           <Link
                             key={category.id}
                             href={`/${locale}/catalog?category=${encodeURIComponent(category.slug)}&page=1`}
-                            onClick={handleShopMenuLinkClick}
+                            onClick={closeShopMenuAfterNavigationClick}
                             className="rounded-lg px-3 py-2 text-[12px] font-medium uppercase tracking-widest text-foreground transition-colors hover:bg-[color:var(--store-nav-link-bg)] focus-visible:bg-[color:var(--store-nav-link-bg)] focus-visible:outline-none"
                           >
                             {getCategoryLabel(category)}
