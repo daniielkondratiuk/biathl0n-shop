@@ -83,6 +83,7 @@ async function CatalogProductsSection({
       <ProductGrid
         products={pageItems}
         clearFiltersHref={hasActiveFilters ? `/${locale}/catalog?page=1` : undefined}
+        selectedColorSlug={filters.colors[0]}
       />
 
       {totalPages > 1 && (

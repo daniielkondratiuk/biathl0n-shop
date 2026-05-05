@@ -116,7 +116,7 @@ export function parseCatalogSearchParams(
     badge: badgeValue,
     badges: normalizedBadges,
     sizes: getAll("size").filter(Boolean),
-    colors: getAll("color").filter(Boolean),
+    colors: getAll("color").filter(Boolean).slice(0, 1),
     minPrice: get("minPrice"),
     maxPrice: get("maxPrice"),
     q: get("q"),
@@ -173,7 +173,7 @@ export function buildCatalogSearchParams(
   });
 
   // Colors (support multiple)
-  state.colors.forEach((color) => {
+  state.colors.slice(0, 1).forEach((color) => {
     if (color) params.append("color", color);
   });
 

@@ -10,6 +10,7 @@ type ProductWithRelations = Product & {
   category: Category;
   colorVariants?: (ProductColorVariant & {
     images: Partial<ProductImage>[];
+    color?: { id?: string; name?: string; nameFr?: string | null; hex?: string; slug?: string | null };
   })[];
   // Legacy support
   images?: ProductImage[];
@@ -18,9 +19,11 @@ type ProductWithRelations = Product & {
 export function ProductGrid({
   products,
   clearFiltersHref,
+  selectedColorSlug,
 }: {
   products: ProductWithRelations[];
   clearFiltersHref?: string;
+  selectedColorSlug?: string;
 }) {
   const t = useTranslations();
 
@@ -50,7 +53,7 @@ export function ProductGrid({
   return (
     <div className="grid grid-cols-2 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} selectedColorSlug={selectedColorSlug} />
       ))}
     </div>
   );

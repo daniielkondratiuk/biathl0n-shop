@@ -19,9 +19,11 @@ type ProductWithRelations = Product & {
     isActive?: boolean;
     images: Partial<ProductImage>[];
     color?: {
-      id: string;
-      name: string;
-      hex: string;
+      id?: string;
+      name?: string;
+      nameFr?: string | null;
+      hex?: string;
+      slug?: string | null;
     };
   }>;
 };
@@ -35,14 +37,25 @@ const BADGE_VARIANTS: Record<string, "limited" | "new" | "sale" | "bestseller" |
   BACKINSTOCK: "backinstock",
 };
 
-export function ProductCard({ product }: { product: ProductWithRelations }) {
+export function ProductCard({
+  product,
+  selectedColorSlug,
+}: {
+  product: ProductWithRelations;
+  selectedColorSlug?: string;
+}) {
   const locale = useLocale();
   const tCart = useTranslations("cart");
   const tCatalog = useTranslations("catalog");
   const themeTokens = useStoreThemeTokens();
 
-  // Extract images from first color variant
-  const firstColor = product.colorVariants?.[0];
+  const activeColorVariants = product.colorVariants?.filter((cv) => cv.isActive !== false) || [];
+  const selectedColorVariant = selectedColorSlug
+    ? activeColorVariants.find((cv) => cv.color?.slug === selectedColorSlug)
+    : null;
+
+  // Extract images from selected color variant when color filter is active; otherwise use first color variant.
+  const firstColor = selectedColorVariant || activeColorVariants[0] || product.colorVariants?.[0];
   const images = firstColor?.images || [];
   
   // Find MAIN and MAIN_DETAIL images (sorted by role)
@@ -83,7 +96,6 @@ export function ProductCard({ product }: { product: ProductWithRelations }) {
   const badgeVariant = badge ? (BADGE_VARIANTS[badge] || "default") : null;
 
   // Get active color variants count
-  const activeColorVariants = product.colorVariants?.filter((cv) => cv.isActive !== false) || [];
   const colorCount = activeColorVariants.length;
 
   const firstColorVariantId = firstColor?.id || null;

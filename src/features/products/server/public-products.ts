@@ -602,6 +602,7 @@ async function getCatalogProductsImpl(params: CatalogProductsParams) {
                 id: true,
                 name: true,
                 nameFr: true,
+                slug: true,
                 hex: true,
               },
             },

@@ -85,6 +85,7 @@ export function FilterPanel({
 
   // Local draft state - synced from URL, but price changes stay local until Apply
   const [draft, setDraft] = useState<CatalogFilterState>(urlState);
+  const [colorLimitWarningVisible, setColorLimitWarningVisible] = useState(false);
 
   // Sync draft state when URL changes (back/forward navigation)
   useEffect(() => {
@@ -221,11 +222,32 @@ export function FilterPanel({
     updateUrlInstant(newState);
   };
 
+  const colorLimitMessageByLocale: Record<string, string> = {
+    en: "Only 1 color can be selected",
+    fr: "Vous ne pouvez sélectionner qu’une seule couleur",
+    de: "Es kann nur 1 Farbe ausgewählt werden",
+    es: "Solo se puede seleccionar 1 color",
+    it: "Puoi selezionare solo 1 colore",
+  };
+
+  const colorLimitMessage = colorLimitMessageByLocale[locale] ?? colorLimitMessageByLocale.en;
+
   const toggleColor = (slug: string) => {
-    const colors = draft.colors.includes(slug)
-      ? draft.colors.filter((c) => c !== slug)
-      : [...draft.colors, slug];
-    const newState = { ...draft, colors };
+    if (draft.colors.includes(slug)) {
+      const newState = { ...draft, colors: [] };
+      setColorLimitWarningVisible(false);
+      setDraft(newState);
+      updateUrlInstant(newState);
+      return;
+    }
+
+    if (draft.colors.length >= 1) {
+      setColorLimitWarningVisible(true);
+      return;
+    }
+
+    const newState = { ...draft, colors: [slug] };
+    setColorLimitWarningVisible(false);
     setDraft(newState);
     updateUrlInstant(newState);
   };
@@ -522,6 +544,11 @@ export function FilterPanel({
                   selected={draft.colors}
                   onToggle={toggleColor}
                 />
+                {colorLimitWarningVisible && (
+                  <p className="mt-3 text-xs font-medium text-destructive">
+                    {colorLimitMessage}
+                  </p>
+                )}
               </FilterSection>
               <div className="h-px w-full bg-border" />
             </>
