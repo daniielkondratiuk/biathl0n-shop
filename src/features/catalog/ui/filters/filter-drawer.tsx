@@ -57,7 +57,6 @@ export function FilterDrawer({
 
   const panelStyle = themeTokens.mounted
     ? {
-        backgroundColor: "var(--store-filter-panel-bg)",
         color: themeTokens.textPrimary,
         borderColor: themeTokens.border,
       }

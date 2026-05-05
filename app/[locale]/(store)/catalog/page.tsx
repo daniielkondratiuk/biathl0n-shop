@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Catalog",
   description: "Browse all custom-ready garments and accessories.",
   openGraph: {
-    title: "Catalog | predators",
+    title: "Catalog | Biathl0n Shop",
     description: "Browse all custom-ready garments and accessories.",
   },
 };

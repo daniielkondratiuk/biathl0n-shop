@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { buildSitemap } from "@/features/seo";
 
-const BASE_URL = "https://predators.fr";
+const BASE_URL = "https://www.biathl0n.com";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries = await buildSitemap();

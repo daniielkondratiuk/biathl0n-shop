@@ -5,24 +5,24 @@ import { ThemeProvider } from "@/shared/theme";
 import { CartProvider } from "@/features/cart";
 
 const GLOBAL_DESCRIPTION =
-  "Predators is a premium streetwear brand focused on bold design, high-quality materials, and modern urban style. Discover exclusive clothing and custom apparel in the official Predators store.";
+  "Biathl0n Shop is a premium sportswear store focused on biathlon-inspired apparel, clean embroidered designs, and modern athletic style.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://predators.fr"),
+  metadataBase: new URL("https://www.biathl0n.com"),
   title: {
-    default: "Predators — Premium Streetwear & Custom Apparel",
-    template: "%s | Predators",
+    default: "Biathl0n Shop",
+    template: "%s | Biathl0n Shop",
   },
   description: GLOBAL_DESCRIPTION,
   openGraph: {
-    title: "Predators — Premium Streetwear & Custom Apparel",
+    title: "Biathl0n Shop",
     description: GLOBAL_DESCRIPTION,
-    siteName: "Predators",
+    siteName: "Biathl0n Shop",
     type: "website",
-    url: "https://predators.fr",
+    url: "https://www.biathl0n.com",
   },
   alternates: {
-    canonical: "https://predators.fr",
+    canonical: "https://www.biathl0n.com",
   },
 };
 
@@ -45,9 +45,9 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              name: "Predators",
-              url: "https://predators.fr",
-              logo: "https://predators.fr/logo.png",
+              name: "Biathl0n Shop",
+              url: "https://www.biathl0n.com",
+              logo: "https://www.biathl0n.com/logo-biathl0n-black.png",
               sameAs: [
                 "https://www.instagram.com/predators_boutique/",
                 "https://www.tiktok.com/@predators_boutique",

@@ -10,4 +10,3 @@ export async function deleteAdminProductById(productId: string) {
     where: { id: productId },
   });
 }
-

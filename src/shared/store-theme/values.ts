@@ -86,7 +86,7 @@ export const FRONTSTORE_THEME_COLORS: Record<
 
     navLinkBg: "rgba(179, 209, 237, 0.5)",
     navLinkBarBg: "rgba(179, 209, 237, 0.5)",
-    filterPanelBg: "rgba(179, 209, 237, 0.5)",
+    filterPanelBg: "var(--background)",
     navLinkText: "color-mix(in oklab, var(--foreground) 70%, transparent)",
     navLinkTextMuted: "color-mix(in oklab, var(--foreground) 55%, transparent)",
     navLinkTextHover: "var(--foreground)",
@@ -128,7 +128,7 @@ export const FRONTSTORE_THEME_COLORS: Record<
 
     navLinkBg: "rgba(255, 255, 255, 0.05)",
     navLinkBarBg: "rgba(255, 255, 255, 0.05)",
-    filterPanelBg: "rgba(255, 255, 255, 0.5)",
+    filterPanelBg: "var(--background)",
     navLinkText: "color-mix(in oklab, var(--foreground) 70%, transparent)",
     navLinkTextMuted: "color-mix(in oklab, var(--foreground) 55%, transparent)",
     navLinkTextHover: "var(--foreground)",
@@ -149,10 +149,10 @@ export function getFrontstorePrimary(mode: FrontstoreThemeMode): string {
 
 export const FRONTSTORE_THEME_ASSETS = {
   theme_first: {
-    logoSrc: "/logo-light.png",
+    logoSrc: "/logo-biathl0n-black.png",
   },
   theme_secondary: {
-    logoSrc: "/logo-dark.png",
+    logoSrc: "/logo-biathl0n-white.png",
   },
 } as const;
 

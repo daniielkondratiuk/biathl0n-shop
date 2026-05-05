@@ -24,7 +24,7 @@ const CANONICAL_COLOR_ORDER = [
   "light-brown",
   "blue",
   "light-blue",
-  "orange",
+  "yellow",
 ] as const;
 
 /**

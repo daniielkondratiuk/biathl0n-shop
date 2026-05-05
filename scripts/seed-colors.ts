@@ -16,7 +16,7 @@ const colors = [
   { name: "Light Brown", nameFr: "Marron clair", slug: "light-brown", hex: "#B69177" },
   { name: "Blue", nameFr: "Bleu", slug: "blue", hex: "#4B6E98" },
   { name: "Light Blue", nameFr: "Bleu clair", slug: "light-blue", hex: "#93C4EC" },
-  { name: "Orange", nameFr: "Orange", slug: "orange", hex: "#FFA000" },
+  { name: "Yellow", nameFr: "Jaune", slug: "yellow", hex: "#f9df00" },
 ];
 
 async function main() {

@@ -6,9 +6,9 @@ import { Skeleton } from "@/shared/ui/skeleton";
 export const revalidate = 120;
 
 export const metadata: Metadata = {
-  title: "Predators — Custom Streetwear with Animal Patches",
+  title: { absolute: "Biathl0n Shop" },
   description:
-    "Predators is a streetwear brand offering custom clothing with interchangeable animal patches. Create your own style with bold designs and premium materials.",
+    "Biathl0n Shop offers biathlon-inspired apparel with clean embroidered designs, modern athletic style, and premium everyday garments.",
 };
 
 export default async function Home() {

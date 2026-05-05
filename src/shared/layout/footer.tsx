@@ -34,7 +34,7 @@ export function Footer() {
                 alt=""
                 width={180}
                 height={80}
-                className="h-6 w-auto object-contain object-left"
+                className="h-[30px] w-auto object-contain object-left"
               />
             </Link>
           </div>

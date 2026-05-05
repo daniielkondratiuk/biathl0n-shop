@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t("title"),
     description: t("description"),
     openGraph: {
-      title: `${t("title")} | predators`,
+      title: `${t("title")} | Biathl0n Shop`,
       description: t("description"),
     },
   };

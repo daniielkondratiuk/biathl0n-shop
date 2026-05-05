@@ -30,10 +30,10 @@ export async function generateMetadata({
 
   return {
     title: product.title || product.name,
-    description: product.description || `Buy ${product.title || product.name} at predators`,
+    description: product.description || `Buy ${product.title || product.name} at Biathl0n Shop`,
     openGraph: {
       title: product.title || product.name,
-      description: product.description || `Buy ${product.title || product.name} at predators`,
+      description: product.description || `Buy ${product.title || product.name} at Biathl0n Shop`,
       images: imageUrl ? [{ url: imageUrl }] : [],
     },
   };

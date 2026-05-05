@@ -36,7 +36,7 @@ interface NavbarClientProps {
   enabledLocales?: ReadonlyArray<LocaleMeta>;
 }
 
-export function NavbarClient({ user, enabledLocales }: NavbarClientProps) {
+export function NavbarClient({ user, categories, enabledLocales }: NavbarClientProps) {
   const themeTokens = useStoreThemeTokens();
   const locale = useLocale();
   const router = useRouter();
@@ -59,6 +59,7 @@ export function NavbarClient({ user, enabledLocales }: NavbarClientProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [isShopMenuDismissed, setIsShopMenuDismissed] = useState(false);
   const searchWrapRef = useRef<HTMLDivElement | null>(null);
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const cartItems = useCartStore((state) => state.items);
@@ -136,6 +137,12 @@ export function NavbarClient({ user, enabledLocales }: NavbarClientProps) {
   }, [pathname, searchParams]);
 
   useEffect(() => {
+    if (pathname.endsWith("/catalog") && searchParams.has("category")) {
+      setIsShopMenuDismissed(true);
+    }
+  }, [pathname, searchParams]);
+
+  useEffect(() => {
     if (!isSearchOpen) return;
 
     const opts: AddEventListenerOptions = { capture: true };
@@ -157,6 +164,7 @@ export function NavbarClient({ user, enabledLocales }: NavbarClientProps) {
       document.removeEventListener("pointerdown", onPointerDown, opts);
     };
   }, [isSearchOpen]);
+
 
   const focusSearchInput = () => {
     searchWrapRef.current?.querySelector("input")?.focus();
@@ -186,6 +194,21 @@ export function NavbarClient({ user, enabledLocales }: NavbarClientProps) {
   const cartCount = mounted
     ? cartItems.reduce((sum, item) => sum + item.quantity, 0)
     : 0;
+
+  const getCategoryLabel = (category: Category) => {
+    if (locale === "fr") {
+      const nameFr = ((category as Category & { nameFr?: string | null }).nameFr ?? "").trim();
+      return nameFr || category.name;
+    }
+    return category.name;
+  };
+
+  const handleShopMenuLinkClick = () => {
+    setIsShopMenuDismissed(true);
+  };
+
+  const isCatalogPage = pathname.endsWith("/catalog");
+  const isShopMenuHidden = isShopMenuDismissed || isCatalogPage;
 
   return (
     <div className="sticky top-0 z-50">
@@ -250,10 +273,10 @@ export function NavbarClient({ user, enabledLocales }: NavbarClientProps) {
           <Link href={`/${locale}`} className="flex items-center justify-self-center">
             <Image
               src={themeTokens.logoSrc}
-              alt="predators"
+              alt="Biathl0n"
               width={180}
               height={80}
-              className="h-8 w-auto"
+              className="h-[50px] w-auto"
               priority
             />
           </Link>
@@ -285,16 +308,60 @@ export function NavbarClient({ user, enabledLocales }: NavbarClientProps) {
               pathname === href ||
               (item.href !== "/" && pathname.startsWith(`${href}/`));
 
+            const isShop = item.href === "/catalog";
+
             return (
-              <li key={item.href}>
-                <Link
-                  href={href}
-                  className={`relative inline-flex rounded-full px-3 py-1 text-sm font-medium uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current/40 focus-visible:ring-offset-0 hover:bg-[color:var(--store-nav-link-bg)] ${
-                    isActive ? "bg-[color:var(--store-nav-link-bg)]" : ""
-                  }`}
-                >
-                  {item.label}
-                </Link>
+              <li
+                key={item.href}
+                className="group relative"
+                onMouseLeave={() => isShop && setIsShopMenuDismissed(false)}
+              >
+                {isShop ? (
+                  <Link
+                    href={href}
+                    onClick={handleShopMenuLinkClick}
+                    className={`relative inline-flex rounded-full px-3 py-1 text-sm font-medium uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current/40 focus-visible:ring-offset-0 hover:bg-[color:var(--store-nav-link-bg)] ${
+                      isActive ? "bg-[color:var(--store-nav-link-bg)]" : ""
+                    }`}
+                    aria-haspopup="true"
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <Link
+                    href={href}
+                    className={`relative inline-flex rounded-full px-3 py-1 text-sm font-medium uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current/40 focus-visible:ring-offset-0 hover:bg-[color:var(--store-nav-link-bg)] ${
+                      isActive ? "bg-[color:var(--store-nav-link-bg)]" : ""
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                )}
+
+                {isShop && categories.length > 0 && (
+                  <div
+                    className={`pointer-events-none absolute left-0 top-full z-50 w-64 pt-3 transition-all duration-300 ease-out ${
+                      isShopMenuHidden
+                        ? "translate-y-1 opacity-0"
+                        : "-translate-y-2 opacity-0 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100"
+                    }`}
+                  >
+                    <div className="rounded-xl bg-background/65 p-2 text-foreground shadow-xl shadow-black/15 backdrop-blur-xl">
+                      <div className="flex flex-col gap-1">
+                        {categories.map((category) => (
+                          <Link
+                            key={category.id}
+                            href={`/${locale}/catalog?category=${encodeURIComponent(category.slug)}&page=1`}
+                            onClick={handleShopMenuLinkClick}
+                            className="rounded-lg px-3 py-2 text-[12px] font-medium uppercase tracking-widest text-foreground transition-colors hover:bg-[color:var(--store-nav-link-bg)] focus-visible:bg-[color:var(--store-nav-link-bg)] focus-visible:outline-none"
+                          >
+                            {getCategoryLabel(category)}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </li>
             );
           })}

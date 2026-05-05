@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t("title"),
     description: t("description"),
     openGraph: {
-      title: `${t("title")} | predators`,
+      title: `${t("title")} | Biathl0n Shop`,
       description: t("description"),
     },
   };
@@ -31,10 +31,8 @@ function formatAddress(profile: Awaited<ReturnType<typeof getCompanyProfile>>) {
 export default async function ContactPage() {
   const t = await getTranslations("contact");
   const profile = await getCompanyProfile();
-  const formattedAddress = formatAddress(profile);
-  const encodedAddress = formattedAddress
-    ? encodeURIComponent(formattedAddress)
-    : encodeURIComponent("Paris, France");
+  const contactAddress = "3 Rue de l’Épine, 67000 Strasbourg";
+  const encodedAddress = encodeURIComponent(contactAddress);
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-8">
@@ -55,7 +53,7 @@ export default async function ContactPage() {
                   {profile.brandName || profile.legalName}
                 </p>
                 <p>{profile.legalName}</p>
-                {formattedAddress && <p>{formattedAddress}</p>}
+                <p>{contactAddress}</p>
               </div>
             ) : (
               <p className="mt-3 text-xs">
