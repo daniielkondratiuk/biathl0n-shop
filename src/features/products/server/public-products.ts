@@ -98,9 +98,21 @@ const CANONICAL_COLOR_ORDER = [
  * Returns colors sorted in canonical order.
  */
 async function getAllColorsImpl() {
-  const allColors = await prisma.color.findMany();
+  const allColors = await prisma.color.findMany({
+    where: {
+      colorVariants: {
+        some: {
+          isActive: true,
+          product: {
+            isActive: true,
+            visible: true,
+          },
+        },
+      },
+    },
+  });
 
-  // Filter to canonical colors only
+  // Filter to canonical colors only and only expose colors that exist on active visible products.
   const canonicalSlugs = new Set<string>(CANONICAL_COLOR_ORDER);
   const canonicalColors = allColors.filter((c) => canonicalSlugs.has(c.slug));
 
