@@ -8,8 +8,12 @@ async function main() {
   // Minimal stub seeding; real product/category seeding will be implemented
   // in a later phase when we add concrete catalog data.
 
-  const adminEmail = "admin@biathl0n.com";
-  const adminPassword = "admin123"; // Default admin password
+  const adminEmail = process.env.ADMIN_EMAIL ?? "edouard@istawi.com";
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  if (!adminPassword) {
+    throw new Error("ADMIN_PASSWORD must be set before seeding admin user");
+  }
 
   const existingAdmin = await prisma.user.findUnique({
     where: { email: adminEmail },
@@ -21,19 +25,19 @@ async function main() {
     await prisma.user.create({
       data: {
         email: adminEmail,
-        name: "Admin",
+        name: "Édouard",
         passwordHash,
         role: UserRole.ADMIN,
       },
     });
-    console.log(`✅ Created admin user: ${adminEmail} / ${adminPassword}`);
+    console.log(`✅ Created admin user: ${adminEmail}`);
   } else {
     // Update existing admin with properly hashed password
     await prisma.user.update({
       where: { email: adminEmail },
       data: { passwordHash },
     });
-    console.log(`✅ Updated admin user password: ${adminEmail} / ${adminPassword}`);
+    console.log(`✅ Updated admin user password: ${adminEmail}`);
   }
 
   // Placeholder categories to verify relations; will be replaced with real seed data.

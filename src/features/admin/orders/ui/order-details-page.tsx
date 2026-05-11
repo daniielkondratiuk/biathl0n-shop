@@ -4,6 +4,7 @@
 import { useEffect, useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { StatusBadge } from "@/shared/ui/admin/status-badge";
 import { OrderTimeline } from "./components/order-timeline";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ interface OrderItem {
   id: string;
   productName: string;
   productImage: string | null;
+  productSlug: string | null;
   variantLabel: string | null;
   quantity: number;
   unitPrice: number;
@@ -365,6 +367,19 @@ export function OrderDetailsPage({ orderId }: OrderDetailsPageProps) {
                     {item.variantLabel && (
                       <p className="mt-0.5 text-xs text-muted-foreground">
                         {item.variantLabel}
+                      </p>
+                    )}
+                    {item.productSlug && (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Slug:{" "}
+                        <Link
+                          href={`/en/product/${item.productSlug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-mono text-accent underline-offset-2 transition-colors hover:underline"
+                        >
+                          {item.productSlug}
+                        </Link>
                       </p>
                     )}
                     <p className="mt-1 text-xs text-muted-foreground">
