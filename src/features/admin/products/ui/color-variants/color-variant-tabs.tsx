@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { ProductImageUploader, ProductImage } from "@/features/admin/products/ui/upload/product-image-uploader";
 import type { ColorVariantData } from "./color-variant-manager";
 
-type Size = "XS" | "S" | "M" | "L" | "XL" | "XXL";
-const SIZES: Size[] = ["XS", "S", "M", "L", "XL", "XXL"];
+type Size = "UNIQUE" | "XS" | "S" | "M" | "L" | "XL" | "XXL";
+const SIZES: Size[] = ["UNIQUE", "XS", "S", "M", "L", "XL", "XXL"];
 
 interface Color {
   id: string;

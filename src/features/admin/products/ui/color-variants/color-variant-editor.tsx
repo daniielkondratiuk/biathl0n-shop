@@ -8,9 +8,9 @@ import { ProductImageUploader, ProductImage } from "@/features/admin/products/ui
 import { normalizeImageRoles } from "@/lib/utils/image-role-helpers";
 import type { ColorVariantData } from "./color-variant-manager";
 
-type Size = "XS" | "S" | "M" | "L" | "XL" | "XXL";
+type Size = "UNIQUE" | "XS" | "S" | "M" | "L" | "XL" | "XXL";
 // Fixed ordered list of all possible sizes (matching database enum)
-const SIZE_ORDER: Size[] = ["XS", "S", "M", "L", "XL", "XXL"];
+const SIZE_ORDER: Size[] = ["UNIQUE", "XS", "S", "M", "L", "XL", "XXL"];
 // Helper function to sort sizes according to SIZE_ORDER
 function sortSizes<T extends { size: Size }>(list: T[]): T[] {
   return [...list].sort(

@@ -114,7 +114,7 @@ export function ProductPageClient({
   // Available sizes from selected color variant - sorted
   const availableSizes = useMemo(() => {
     if (!selectedColorVariant?.sizes) return [];
-    const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
+    const SIZE_ORDER = ["UNIQUE", "XS", "S", "M", "L", "XL", "XXL"];
     return [...selectedColorVariant.sizes].sort((a, b) => {
       return SIZE_ORDER.indexOf(a.size) - SIZE_ORDER.indexOf(b.size);
     });
@@ -198,7 +198,7 @@ export function ProductPageClient({
               <ProductSizeSelector
                 sizes={availableSizes.map((s) => ({
                   ...s,
-                  size: s.size as "XS" | "S" | "M" | "L" | "XL" | "XXL",
+                  size: s.size as "UNIQUE" | "XS" | "S" | "M" | "L" | "XL" | "XXL",
                 }))}
                 selectedSize={selectedSize}
                 onSizeChange={setSelectedSize}

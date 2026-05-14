@@ -34,7 +34,7 @@ export const DEFAULT_FILTER_STATE: CatalogFilterState = {
 
 // Valid options for validation
 export const GENDER_OPTIONS = ["men", "women", "kids", "unisex"] as const;
-export const SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL"] as const;
+export const SIZE_OPTIONS = ["UNIQUE", "XS", "S", "M", "L", "XL", "XXL"] as const;
 export const BADGE_OPTIONS = [
   "NEW",
   "BESTSELLER",

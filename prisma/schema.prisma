@@ -67,6 +67,7 @@ enum Gender {
 }
 
 enum Size {
+  UNIQUE
   XS
   S
   M

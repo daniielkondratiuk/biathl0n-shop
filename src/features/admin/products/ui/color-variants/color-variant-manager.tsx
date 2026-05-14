@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProductImageUploader, ProductImage } from "@/features/admin/products/ui/upload/product-image-uploader";
 
-type Size = "XS" | "S" | "M" | "L" | "XL" | "XXL";
-const SIZES: Size[] = ["XS", "S", "M", "L", "XL", "XXL"];
+type Size = "UNIQUE" | "XS" | "S" | "M" | "L" | "XL" | "XXL";
+const SIZES: Size[] = ["UNIQUE", "XS", "S", "M", "L", "XL", "XXL"];
 
 export interface ColorVariantData {
   id?: string; // For updates

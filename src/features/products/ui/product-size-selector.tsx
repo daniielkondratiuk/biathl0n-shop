@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 
 interface SizeVariant {
   id: string;
-  size: "XS" | "S" | "M" | "L" | "XL" | "XXL";
+  size: "UNIQUE" | "XS" | "S" | "M" | "L" | "XL" | "XXL";
   stock: number;
   priceDiff: number;
 }
@@ -16,7 +16,8 @@ interface ProductSizeSelectorProps {
   onSizeChange: (size: string) => void;
 }
 
-const SIZE_ORDER: Array<"XS" | "S" | "M" | "L" | "XL" | "XXL"> = [
+const SIZE_ORDER: Array<"UNIQUE" | "XS" | "S" | "M" | "L" | "XL" | "XXL"> = [
+  "UNIQUE",
   "XS",
   "S",
   "M",

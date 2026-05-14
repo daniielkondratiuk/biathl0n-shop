@@ -24,7 +24,7 @@ const imageSchema = z.object({
 });
 
 const sizeVariantSchema = z.object({
-  size: z.enum(["XS", "S", "M", "L", "XL", "XXL"]),
+  size: z.enum(["UNIQUE", "XS", "S", "M", "L", "XL", "XXL"]),
   stock: z.number().int().nonnegative(),
   priceDiff: z.number().int().default(0),
 });

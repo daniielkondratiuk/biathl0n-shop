@@ -302,7 +302,7 @@ export function ProductEditPage({ enabledLanguages = DEFAULT_FORM_LANGUAGES }: P
                 images: normalizedImages,
                 sizes: (cv.sizes || []).map((s) => ({
                   id: s.id,
-                  size: s.size as "XS" | "S" | "M" | "L" | "XL" | "XXL",
+                  size: s.size as "UNIQUE" | "XS" | "S" | "M" | "L" | "XL" | "XXL",
                   stock: s.stock,
                   priceDiff: s.priceDiff || 0,
                 })),

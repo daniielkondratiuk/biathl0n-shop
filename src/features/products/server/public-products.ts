@@ -428,7 +428,7 @@ type CatalogProductsParams = {
   maxPrice?: number; // In dollars
   colorSlugs?: string[]; // Color filter
   badges?: string[]; // Badge filter (NEW, BESTSELLER, etc.)
-  sizes?: string[]; // Size filter (XS, S, M, L, XL, XXL)
+  sizes?: string[]; // Size filter (UNIQUE, XS, S, M, L, XL, XXL)
   locale?: string; // Locale for translations
 };
 
@@ -552,7 +552,7 @@ async function getCatalogProductsImpl(params: CatalogProductsParams) {
   // Size filter - filter products that have variants with selected sizes
   if (sizes && sizes.length > 0) {
     const validSizes = sizes.filter((s) =>
-      ["XS", "S", "M", "L", "XL", "XXL"].includes(s)
+      ["UNIQUE", "XS", "S", "M", "L", "XL", "XXL"].includes(s)
     );
     if (validSizes.length > 0) {
       // If we already have a colorVariants filter, we need to combine conditions

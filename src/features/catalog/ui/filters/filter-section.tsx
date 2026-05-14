@@ -175,7 +175,7 @@ interface FilterSizePillsProps {
   onToggle: (size: string) => void;
 }
 
-const SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"];
+const SIZE_ORDER = ["UNIQUE", "XS", "S", "M", "L", "XL", "XXL"];
 
 export function FilterSizePills({
   sizes,

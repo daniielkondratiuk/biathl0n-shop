@@ -25,7 +25,7 @@ const imageSchema = z.object({
 
 const sizeVariantSchema = z.object({
   id: z.string().optional(), // For updates
-  size: z.enum(["XS", "S", "M", "L", "XL", "XXL"]),
+  size: z.enum(["UNIQUE", "XS", "S", "M", "L", "XL", "XXL"]),
   stock: z.number().int().nonnegative(),
   priceDiff: z.number().int().default(0),
 });
@@ -700,7 +700,7 @@ export async function updateAdminProductById(
           where: {
             colorVariantId_size: {
               colorVariantId: sizeData.colorVariantId,
-              size: sizeData.size as "XS" | "S" | "M" | "L" | "XL" | "XXL",
+              size: sizeData.size as "UNIQUE" | "XS" | "S" | "M" | "L" | "XL" | "XXL",
             },
           },
           update: {
@@ -710,7 +710,7 @@ export async function updateAdminProductById(
           },
           create: {
             colorVariantId: sizeData.colorVariantId,
-            size: sizeData.size as "XS" | "S" | "M" | "L" | "XL" | "XXL",
+            size: sizeData.size as "UNIQUE" | "XS" | "S" | "M" | "L" | "XL" | "XXL",
             stock: sizeData.stock,
             priceDiff: sizeData.priceDiff,
             sku: sizeData.sku,
@@ -732,7 +732,7 @@ export async function updateAdminProductById(
             where: {
               colorVariantId_size: {
                 colorVariantId,
-                size: sizeData.size as "XS" | "S" | "M" | "L" | "XL" | "XXL",
+                size: sizeData.size as "UNIQUE" | "XS" | "S" | "M" | "L" | "XL" | "XXL",
               },
             },
             update: {
@@ -742,7 +742,7 @@ export async function updateAdminProductById(
             },
             create: {
               colorVariantId,
-              size: sizeData.size as "XS" | "S" | "M" | "L" | "XL" | "XXL",
+              size: sizeData.size as "UNIQUE" | "XS" | "S" | "M" | "L" | "XL" | "XXL",
               stock: sizeData.stock,
               priceDiff: sizeData.priceDiff,
               sku: sizeData.sku,
