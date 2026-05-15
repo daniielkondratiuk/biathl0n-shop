@@ -48,7 +48,7 @@ export function HeroSlider() {
       },
       {
         id: "slide-3",
-        imageSrc: "/hero/3.png",
+        imageSrc: "/hero/hero-banner3-biathlon.png",
         title: "NEW COLLECTIONS",
         text: "Minimal design and high quality for everyday wear.",
       },
