@@ -49,7 +49,7 @@ export async function HomePage() {
             className="group relative mb-8 block h-[490px] overflow-hidden rounded-lg"
           >
             <Image
-              src="/trending/1.png"
+              src="/trending/biathlon-banner4.png"
               alt={t("trendingCollection")}
               fill
               className="object-cover"
