@@ -200,6 +200,71 @@ export async function getFeaturedProducts(limit = 8, locale = "en") {
   return getFeaturedProductsCached(limit, locale);
 }
 
+const getBestSellerProductsCached = unstable_cache(
+  async (limit: number, locale: string) => {
+  const products = await prisma.product.findMany({
+    where: {
+      isActive: true,
+      visible: true, // Backward compatibility
+      badge: "BESTSELLER",
+    },
+    orderBy: { updatedAt: "desc" },
+    take: limit,
+    include: {
+      category: true,
+      translations: {
+        where: {
+          locale: { in: deduplicateLocales(locale) },
+        },
+      },
+      colorVariants: {
+        where: { isActive: true },
+        orderBy: { sortOrder: "asc" },
+        include: {
+          color: {
+            select: {
+              id: true,
+              name: true,
+              nameFr: true,
+              hex: true,
+            },
+          },
+          images: {
+            select: {
+              id: true,
+              url: true,
+              role: true,
+              order: true,
+            },
+            orderBy: [{ role: "asc" }, { order: "asc" }],
+          },
+          sizes: {
+            where: { stock: { gt: 0 } },
+            orderBy: { size: "asc" },
+          },
+        },
+      },
+    },
+  });
+
+  // Resolve translated fields
+  return products.map((product) => {
+    const { title, description } = resolveTranslatedFields(product, locale);
+    return {
+      ...product,
+      title,
+      description,
+    };
+  });
+  },
+  ["public-bestseller-products"],
+  { revalidate: 120 }
+);
+
+export async function getBestSellerProducts(limit = 8, locale = "en") {
+  return getBestSellerProductsCached(limit, locale);
+}
+
 export async function getLimitedProducts(limit = 5, locale = "en") {
   const products = await prisma.product.findMany({
     where: { 

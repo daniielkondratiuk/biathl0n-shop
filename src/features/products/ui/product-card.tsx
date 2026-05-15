@@ -40,9 +40,11 @@ const BADGE_VARIANTS: Record<string, "limited" | "new" | "sale" | "bestseller" |
 export function ProductCard({
   product,
   selectedColorSlug,
+  preferredColorSlug,
 }: {
   product: ProductWithRelations;
   selectedColorSlug?: string;
+  preferredColorSlug?: string;
 }) {
   const locale = useLocale();
   const tCart = useTranslations("cart");
@@ -53,9 +55,13 @@ export function ProductCard({
   const selectedColorVariant = selectedColorSlug
     ? activeColorVariants.find((cv) => cv.color?.slug === selectedColorSlug)
     : null;
+  const preferredColorVariant = preferredColorSlug
+    ? activeColorVariants.find((cv) => cv.color?.slug === preferredColorSlug)
+    : null;
 
-  // Extract images from selected color variant when color filter is active; otherwise use first color variant.
-  const firstColor = selectedColorVariant || activeColorVariants[0] || product.colorVariants?.[0];
+  // Extract images from selected color variant when color filter is active.
+  // Otherwise, catalog can pass a preferred color to create a chessboard pattern.
+  const firstColor = selectedColorVariant || preferredColorVariant || activeColorVariants[0] || product.colorVariants?.[0];
   const images = firstColor?.images || [];
   
   // Find MAIN and MAIN_DETAIL images (sorted by role)

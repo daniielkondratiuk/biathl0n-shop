@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ProductGrid } from "@/features/products";
 import { Button } from "@/components/ui/button";
-import { getFeaturedProducts, getHeroProducts } from "@/features/products";
+import { getBestSellerProducts, getHeroProducts } from "@/features/products";
 import { HeroBanner } from "./hero-banner";
 import { HeroSlider } from "./hero-slider";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -12,8 +12,8 @@ export async function HomePage() {
   const locale = await getLocale();
   const prefix = `/${locale}`;
   const t = await getTranslations("home");
-  const [featured, heroProducts] = await Promise.all([
-    getFeaturedProducts(4, locale),
+  const [bestSellers, heroProducts] = await Promise.all([
+    getBestSellerProducts(4, locale),
     getHeroProducts(undefined, locale), // No limit - fetch all products where showInHero = true
   ]);
 
@@ -31,7 +31,7 @@ export async function HomePage() {
               {t("bestSellers")}
             </h2>
           </div>
-          <ProductGrid products={featured} />
+          <ProductGrid products={bestSellers} />
         </div>
       </section>
 
@@ -81,26 +81,33 @@ export async function HomePage() {
 
           {/* Smaller Product Cards */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {featured.slice(0, 2).map((product, index) => (
-              <Link
-                key={product.id}
-                href={`${prefix}/product/${product.slug}`}
-                className="group relative h-[390px] overflow-hidden rounded-lg"
-              >
-                <Image
-                  src={`/trending/${index + 2}.png`}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-                <div className="absolute bottom-6 left-6 z-10">
-                  <h4 className="text-2xl font-medium text-white">
-                    {product.name}
-                  </h4>
-                </div>
-              </Link>
-            ))}
+            {bestSellers.slice(0, 2).map((product, index) => {
+              const bannerTitle = index === 0 ? "Mountain Horizon" : product.name;
+              const bannerHref = index === 0
+                ? `${prefix}/product/mountain-horizon-t-shirt`
+                : `${prefix}/product/${product.slug}`;
+
+              return (
+                <Link
+                  key={product.id}
+                  href={bannerHref}
+                  className="group relative h-[390px] overflow-hidden rounded-lg"
+                >
+                  <Image
+                    src={`/trending/${index + 2}.png`}
+                    alt={bannerTitle}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                  <div className="absolute bottom-6 left-6 z-10">
+                    <span className="inline-block bg-black/70 px-4 py-2 text-2xl font-bold uppercase tracking-tight text-white md:text-3xl">
+                      {bannerTitle}
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>

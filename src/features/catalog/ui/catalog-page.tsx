@@ -84,6 +84,7 @@ async function CatalogProductsSection({
         products={pageItems}
         clearFiltersHref={hasActiveFilters ? `/${locale}/catalog?page=1` : undefined}
         selectedColorSlug={filters.colors[0]}
+        enableChessColorPattern={filters.colors.length === 0}
       />
 
       {totalPages > 1 && (

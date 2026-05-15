@@ -8,6 +8,7 @@ export {
   getAllCategories,
   getAllColors,
   getFeaturedProducts,
+  getBestSellerProducts,
   getLimitedProducts,
   getHeroProducts,
   getProductBySlug,

@@ -20,10 +20,12 @@ export function ProductGrid({
   products,
   clearFiltersHref,
   selectedColorSlug,
+  enableChessColorPattern = false,
 }: {
   products: ProductWithRelations[];
   clearFiltersHref?: string;
   selectedColorSlug?: string;
+  enableChessColorPattern?: boolean;
 }) {
   const t = useTranslations();
 
@@ -52,9 +54,21 @@ export function ProductGrid({
 
   return (
     <div className="grid grid-cols-2 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} selectedColorSlug={selectedColorSlug} />
-      ))}
+      {products.map((product, index) => {
+        const desktopColumnCount = 4;
+        const row = Math.floor(index / desktopColumnCount);
+        const column = index % desktopColumnCount;
+        const chessColorSlug = (row + column) % 2 === 0 ? "white" : "black";
+
+        return (
+          <ProductCard
+            key={product.id}
+            product={product}
+            selectedColorSlug={selectedColorSlug}
+            preferredColorSlug={!selectedColorSlug && enableChessColorPattern ? chessColorSlug : undefined}
+          />
+        );
+      })}
     </div>
   );
 }
