@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
+import { useLocale } from "next-intl";
 
 type Slide = {
   id: string;
@@ -32,28 +33,37 @@ function ChevronIcon({ direction }: { direction: Direction }) {
 }
 
 export function HeroSlider() {
+  const locale = useLocale();
+  const isFrench = locale === "fr";
+
   const slides = useMemo<readonly Slide[]>(
     () => [
       {
         id: "slide-1",
         imageSrc: "/hero/1.png",
-        title: "100% EMBROIDERY",
-        text: "No prints, only durable embroidery",
+        title: isFrench ? "100% BRODERIE" : "100% EMBROIDERY",
+        text: isFrench
+          ? "Pas d’impressions, uniquement une broderie durable"
+          : "No prints, only durable embroidery",
       },
       {
         id: "slide-2",
         imageSrc: "/hero/hero-banner2-biathlon.png",
-        title: "MULTIPLE COLORS",
-        text: "Clean silhouettes and versatile essentials for every season.",
+        title: isFrench ? "PLUSIEURS COULEURS" : "MULTIPLE COLORS",
+        text: isFrench
+          ? "Des silhouettes épurées et des essentiels polyvalents pour chaque saison."
+          : "Clean silhouettes and versatile essentials for every season.",
       },
       {
         id: "slide-3",
         imageSrc: "/hero/hero-banner3-biathlon.png",
-        title: "NEW COLLECTIONS",
-        text: "Minimal design and high quality for everyday wear.",
+        title: isFrench ? "NOUVELLES COLLECTIONS" : "NEW COLLECTIONS",
+        text: isFrench
+          ? "Design minimaliste et haute qualité pour le quotidien."
+          : "Minimal design and high quality for everyday wear.",
       },
     ],
-    [],
+    [isFrench],
   );
 
   const autoplay = useRef(
