@@ -94,7 +94,7 @@ export async function HomePage() {
                   className="group relative h-[390px] overflow-hidden rounded-lg"
                 >
                   <Image
-                    src={`/trending/${index + 2}.png`}
+                    src={index === 0 ? "/trending/mountain-horizon-banner1.png" : `/trending/${index + 2}.png`}
                     alt={bannerTitle}
                     fill
                     className="object-cover"
