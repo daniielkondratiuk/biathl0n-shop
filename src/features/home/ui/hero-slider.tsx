@@ -42,7 +42,7 @@ export function HeroSlider() {
       },
       {
         id: "slide-2",
-        imageSrc: "/hero/2.png",
+        imageSrc: "/hero/hero-banner2-biathlon.png",
         title: "MULTIPLE COLORS",
         text: "Clean silhouettes and versatile essentials for every season.",
       },
