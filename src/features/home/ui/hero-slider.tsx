@@ -37,8 +37,8 @@ export function HeroSlider() {
       {
         id: "slide-1",
         imageSrc: "/hero/1.png",
-        title: "NEW COLLECTIONS",
-        text: "Minimal design and high quality for everyday wear.",
+        title: "100% EMBROIDERY",
+        text: "No prints, only durable embroidery",
       },
       {
         id: "slide-2",
