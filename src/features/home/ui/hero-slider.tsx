@@ -43,8 +43,8 @@ export function HeroSlider() {
       {
         id: "slide-2",
         imageSrc: "/hero/2.png",
-        title: "MULTIPLE COLORS",
-        text: "Clean silhouettes and versatile essentials for every season.",
+        title: "MOUNTAIN HORIZON",
+        text: "A clean alpine line built for the rhythm of biathlon.",
       },
       {
         id: "slide-3",
