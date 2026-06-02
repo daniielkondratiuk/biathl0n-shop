@@ -180,6 +180,12 @@ model Product {
   badge           ProductBadge?
   defaultPatchIds String[] // Array of default patch IDs
 
+  // Shipping / customs (used for Colissimo international CN23 declarations)
+  weightGrams          Int?    // real per-unit weight in grams; falls back to FALLBACK_WEIGHT_GRAMS_PER_ITEM
+  hsCode               String? // HS tariff code, 6/8/10 digits
+  originCountry        String? // ISO 3166-1 alpha-2 country of origin
+  customsDescriptionEn String? // English customs description (required for US shipments)
+
   colorVariants ProductColorVariant[]
   patches       ProductPatch[]
   orderItems    OrderItem[]
@@ -349,6 +355,7 @@ model Order {
   trackingNumber String?
   carrier        String?
   labelPath        String?
+  cn23Path         String?   // Customs CN23 PDF path (international shipments only)
   labelGeneratedAt DateTime?
 
   createdAt DateTime @default(now())
@@ -547,6 +554,10 @@ model CompanyProfile {
   siret            String?
   vatId            String?
   vatNote          String?
+  vatRate          Int      @default(2000) // VAT rate in basis points (2000 = 20.00%); used to derive HT/TVA/TTC on invoices
+  eori             String?  // Economic Operator Registration ID (sender, required for US customs)
+  customsDefaultHsCode        String? // Fallback HS code for products without their own
+  customsDefaultOriginCountry String? // Fallback ISO A2 origin country for products without their own
   currency         String   @default("EUR")
   invoicePrefix    String   @default("INV")
   invoiceNextNumber Int     @default(1)

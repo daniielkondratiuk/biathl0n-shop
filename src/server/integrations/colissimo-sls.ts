@@ -6,6 +6,8 @@
  * https://ws.colissimo.fr/sls-ws/SlsServiceWSRest/3.1/generateLabel
  */
 
+import { shipmentNeedsCustoms } from "@/lib/constants/eu-countries";
+
 function getSlsUrl(): string {
   const base = process.env.COLISSIMO_WS_BASE_URL ?? "https://ws.colissimo.fr";
   return `${base}/sls-ws/SlsServiceWSRest/3.1/generateLabel`;
@@ -51,8 +53,25 @@ function safeTrim(value: string | null | undefined): string | null {
 export interface ColissimoLabelResult {
   trackingNumber: string | null;
   labelPdfBase64: string | null;
+  /** Customs CN23 PDF, only returned for international shipments that require it. */
+  cn23PdfBase64: string | null;
   errorCode: string;
   errorMessage: string | null;
+}
+
+/** One declarable line for the CN23 customs declaration. */
+export interface ColissimoCustomsItem {
+  /** Customs description; must be English for US shipments. */
+  descriptionEn: string;
+  quantity: number;
+  /** Unit price in cents. */
+  unitPriceCents: number;
+  /** Unit net weight in grams. */
+  weightGrams: number;
+  /** HS tariff code (6/8/10 digits) or null if unknown. */
+  hsCode: string | null;
+  /** ISO 3166-1 alpha-2 country of origin or null. */
+  originCountry: string | null;
 }
 
 export interface ColissimoSender {
@@ -78,12 +97,20 @@ interface ColissimoLabelParams {
     postalCode: string;
     city: string;
     country: string;
+    /** State/province code — required by Colissimo for US destinations. */
+    state?: string | null;
   };
   deliveryMode: "home" | "pickup";
   pickupPointId?: string | null;
   weightGrams: number;
   /** Shipping speed from SHIPPING_SNAPSHOT. Defaults to "standard" if missing. */
   speed?: "standard" | "express" | string;
+  /** Shipping price paid by the customer, in cents. Required by Colissimo for CN23 (totalAmount). */
+  shippingCents?: number;
+  /** Sender EORI number — mandatory for shipments to the US. */
+  senderEori?: string | null;
+  /** Order lines for the CN23 customs declaration (international non-EU only). */
+  items?: ColissimoCustomsItem[];
 }
 
 // ---------------------------------------------------------------------------
@@ -105,10 +132,13 @@ function normalizeCountryCode(cc: string | null | undefined): string {
  *   - pickup any    => HD
  * - International:
  *   - pickup (OOH)  => HD  (generic OOH national+international)
- *   - home standard => DOM (International Home - without signature)
- *   - home express  => DOS (International Home - with signature)
+ *   - home (any)    => DOS (Colissimo International - with signature)
  *
- * "express" maps to faster/signature service; Colissimo uses DOS for intl signature.
+ * DOM is a France-domestic-only product: shipping it to a non-FR country is
+ * rejected by the contract with "ERROR 30312: Les options ne permettent pas
+ * d'effectuer un étiquetage". International home delivery must use DOS, which the
+ * WS auto-routes to the appropriate partner code per destination network
+ * (verified against checkGenerateLabel: DOS->DE = OK, DOM->DE = 30312).
  * Mapping is explicit and conservative — no guessing beyond documented codes.
  */
 function resolveProductCode(args: {
@@ -129,8 +159,8 @@ function resolveProductCode(args: {
     return args.speed === "express" ? "J+1" : "DOM";
   }
 
-  // Home delivery — International
-  return args.speed === "express" ? "DOS" : "DOM";
+  // Home delivery — International: always DOS (DOM is France-only, see note above)
+  return "DOS";
 }
 
 // ---------------------------------------------------------------------------
@@ -139,7 +169,8 @@ function resolveProductCode(args: {
 
 interface SlsParsedResponse {
   json: Record<string, unknown> | null;
-  pdfBase64: string | null;
+  labelPdfBase64: string | null;
+  cn23PdfBase64: string | null;
   contentType: string;
   status: number;
 }
@@ -155,13 +186,14 @@ async function parseSlsResponse(
   if (ct.includes("multipart/related")) {
     const boundaryMatch = contentType.match(/boundary="?([^";]+)"?/i);
     if (!boundaryMatch) {
-      return { json: null, pdfBase64: null, contentType, status };
+      return { json: null, labelPdfBase64: null, cn23PdfBase64: null, contentType, status };
     }
     const delimiterBuf = Buffer.from(`--${boundaryMatch[1]}`);
     const buf = Buffer.from(await response.arrayBuffer());
 
     let json: Record<string, unknown> | null = null;
-    let pdfBase64: string | null = null;
+    let labelPdfBase64: string | null = null;
+    let cn23PdfBase64: string | null = null;
 
     // Find all delimiter positions using Buffer.indexOf
     const offsets: number[] = [];
@@ -232,34 +264,42 @@ async function parseSlsResponse(
       } else if (
         headersStr.includes("application/octet-stream") ||
         headersStr.includes("content-id: <label>") ||
+        headersStr.includes("content-id: <cn23>") ||
         headersStr.includes("application/pdf") ||
         (headersStr.includes("filename") && headersStr.includes(".pdf"))
       ) {
         if (bodyBuf.length > 0) {
-          pdfBase64 = bodyBuf.toString("base64");
+          // International labels return TWO PDF parts: the shipping label
+          // (content-id <label>) and the customs CN23 (content-id <cn23>).
+          // Keep them apart; anything not explicitly CN23 is treated as the label.
+          if (headersStr.includes("content-id: <cn23>")) {
+            cn23PdfBase64 = bodyBuf.toString("base64");
+          } else {
+            labelPdfBase64 = bodyBuf.toString("base64");
+          }
         }
       }
     }
 
-    return { json, pdfBase64, contentType, status };
+    return { json, labelPdfBase64, cn23PdfBase64, contentType, status };
   }
 
   // ---- application/json ----
   if (ct.includes("application/json")) {
     const text = await response.text();
     if (!text.trim()) {
-      return { json: null, pdfBase64: null, contentType, status };
+      return { json: null, labelPdfBase64: null, cn23PdfBase64: null, contentType, status };
     }
     try {
       const json = JSON.parse(text) as Record<string, unknown>;
-      return { json, pdfBase64: null, contentType, status };
+      return { json, labelPdfBase64: null, cn23PdfBase64: null, contentType, status };
     } catch {
-      return { json: null, pdfBase64: null, contentType, status };
+      return { json: null, labelPdfBase64: null, cn23PdfBase64: null, contentType, status };
     }
   }
 
   // ---- unknown content-type ----
-  return { json: null, pdfBase64: null, contentType, status };
+  return { json: null, labelPdfBase64: null, cn23PdfBase64: null, contentType, status };
 }
 
 // ---------------------------------------------------------------------------
@@ -310,7 +350,8 @@ function getAttemptCodes(
   }
   if (speed === "express") {
     if (isFrance) return ["J+1", "COLR", "DOM"];
-    return ["DOS", "DOM"];
+    // International: DOM is invalid (30312), no domestic fallback applies.
+    return ["DOS"];
   }
   return [initial];
 }
@@ -336,6 +377,7 @@ export async function createColissimoLabelFromOrder(
     return {
       trackingNumber: null,
       labelPdfBase64: null,
+      cn23PdfBase64: null,
       errorCode: "MISSING_API_KEY",
       errorMessage:
         "Missing required environment variable COLISSIMO_WS_API_KEY for Colissimo SLS integration",
@@ -361,8 +403,50 @@ export async function createColissimoLabelFromOrder(
       ? "express"
       : "standard";
 
+  // ---- International / customs setup ----
+  const recipientCountry = normalizeCountryCode(params.recipient.country);
+  const isInternational = recipientCountry !== "FR";
+  const needsCustoms = shipmentNeedsCustoms(recipientCountry);
+  const recipientMobile = safeTrim(params.recipient.phone);
+
+  // Shipping price in cents (Colissimo wants totalAmount/transportationAmount for CN23)
+  const shippingCents =
+    typeof params.shippingCents === "number" &&
+    Number.isFinite(params.shippingCents) &&
+    params.shippingCents > 0
+      ? Math.round(params.shippingCents)
+      : 0;
+
+  // CN23 customs declaration — only for shipments that require it (non-EU + DOM-TOM).
+  // article.value is the UNIT value in euros (float); service amounts are in euro cents.
+  const customsDeclarations = needsCustoms
+    ? {
+        includeCustomsDeclarations: 1,
+        contents: {
+          category: { value: 3 }, // 3 = commercial shipment (sale of goods)
+          article: (params.items ?? []).map((it) => ({
+            description: (safeTrim(it.descriptionEn) ?? "Goods").slice(0, 64),
+            quantity: it.quantity > 0 ? it.quantity : 1,
+            weight: gramsToSlsKg(it.weightGrams),
+            value: Math.round((it.unitPriceCents / 100) * 100) / 100,
+            ...(safeTrim(it.hsCode) ? { hsCode: safeTrim(it.hsCode) } : {}),
+            originCountry: normalizeCountryCode(it.originCountry) || "FR",
+            currency: "EUR",
+          })),
+        },
+      }
+    : null;
+
+  // Sender EORI is mandatory for shipments to the US; passed in the top-level fields block.
+  const senderEori = safeTrim(params.senderEori);
+  const fieldsBlock =
+    recipientCountry === "US" && senderEori
+      ? { fields: { field: [{ key: "EORI", value: senderEori }] } }
+      : {};
+
   // Build base body template (productCode set per attempt)
   const baseBody = {
+    ...fieldsBlock,
     outputFormat: {
       x: 0,
       y: 0,
@@ -375,6 +459,9 @@ export async function createColissimoLabelFromOrder(
         orderNumber: params.orderNumber,
         commercialName: safeTrim(params.sender.companyName) ?? "predators",
         refClient: params.orderNumber,
+        ...(needsCustoms && shippingCents > 0
+          ? { transportationAmount: shippingCents, totalAmount: shippingCents }
+          : {}),
         ...(params.deliveryMode === "pickup" && params.pickupPointId
           ? { pickupLocationId: params.pickupPointId }
           : {}),
@@ -398,11 +485,16 @@ export async function createColissimoLabelFromOrder(
           lastName,
           firstName,
           line2: params.recipient.line1,
-          countryCode: normalizeCountryCode(params.recipient.country),
+          countryCode: recipientCountry,
           zipCode: params.recipient.postalCode.trim(),
           city: params.recipient.city.trim().toUpperCase(),
+          ...(isInternational && recipientMobile ? { mobileNumber: recipientMobile } : {}),
+          ...(recipientCountry === "US" && safeTrim(params.recipient.state)
+            ? { stateOrProvinceCode: safeTrim(params.recipient.state) }
+            : {}),
         },
       },
+      ...(customsDeclarations ? { customsDeclarations } : {}),
     },
   };
 
@@ -440,11 +532,26 @@ export async function createColissimoLabelFromOrder(
     console.log("[Colissimo SLS] response", { status: response.status, contentType: ct, productCode: code });
 
     const parsed = await parseSlsResponse(response);
+
+    // Surface the REAL rejection reason. On a 400/403 the actual cause lives in
+    // the response body (messages[].messageContent), which the access log above
+    // hides — without this the only visible signal is a bare "502 in 956ms".
+    if (!response.ok) {
+      console.error("[Colissimo SLS] error body", {
+        status: response.status,
+        productCode: code,
+        messages: extractSlsMessages(parsed.json),
+        json: parsed.json,
+      });
+    }
+
     return { parsed, responseOk: response.ok, status: response.status, contentType: ct, productCode: code };
   }
 
   // ---- Extract tracking + PDF from a parsed response ----
-  function extractResult(parsed: SlsParsedResponse): { trackingNumber: string; labelPdfBase64: string } | null {
+  function extractResult(
+    parsed: SlsParsedResponse
+  ): { trackingNumber: string; labelPdfBase64: string; cn23PdfBase64: string | null } | null {
     const raw = parsed.json;
 
     // v3.1 nests under labelV31Response; prefer parcelNumber over partner
@@ -476,11 +583,11 @@ export async function createColissimoLabelFromOrder(
       raw?.outputPrinting ??
       null;
     const labelPdfBase64 =
-      parsed.pdfBase64 ??
+      parsed.labelPdfBase64 ??
       (typeof labelPdfFromJson === "string" ? labelPdfFromJson : null);
 
     if (trackingNumber && labelPdfBase64) {
-      return { trackingNumber, labelPdfBase64 };
+      return { trackingNumber, labelPdfBase64, cn23PdfBase64: parsed.cn23PdfBase64 };
     }
     return null;
   }
@@ -526,11 +633,12 @@ export async function createColissimoLabelFromOrder(
       }
 
       // Empty / unparseable response → stop (non-retryable)
-      if (!call.parsed.json && !call.parsed.pdfBase64) {
+      if (!call.parsed.json && !call.parsed.labelPdfBase64) {
         const isMultipart = call.contentType.toLowerCase().includes("multipart");
         return {
           trackingNumber: null,
           labelPdfBase64: null,
+          cn23PdfBase64: null,
           errorCode: isMultipart ? "PARSE_ERROR" : "EMPTY_RESPONSE",
           errorMessage: `No JSON or PDF extracted | status=${call.status} | code=${code}`,
         };
@@ -552,6 +660,7 @@ export async function createColissimoLabelFromOrder(
         return {
           trackingNumber: null,
           labelPdfBase64: null,
+          cn23PdfBase64: null,
           errorCode: String(errorCode),
           errorMessage: httpMsg,
         };
@@ -563,6 +672,7 @@ export async function createColissimoLabelFromOrder(
         return {
           trackingNumber: null,
           labelPdfBase64: null,
+          cn23PdfBase64: null,
           errorCode: "SLS_ERROR",
           errorMessage: slsError,
         };
@@ -574,6 +684,7 @@ export async function createColissimoLabelFromOrder(
         return {
           trackingNumber: null,
           labelPdfBase64: null,
+          cn23PdfBase64: null,
           errorCode: "INCOMPLETE_RESPONSE",
           errorMessage: `OK response but missing tracking or PDF | code=${code}`,
         };
@@ -583,6 +694,7 @@ export async function createColissimoLabelFromOrder(
       return {
         trackingNumber: extracted.trackingNumber,
         labelPdfBase64: extracted.labelPdfBase64,
+        cn23PdfBase64: extracted.cn23PdfBase64,
         errorCode: "0",
         errorMessage: null,
       };
@@ -593,6 +705,7 @@ export async function createColissimoLabelFromOrder(
     return {
       trackingNumber: null,
       labelPdfBase64: null,
+      cn23PdfBase64: null,
       errorCode: "SLS_ERROR",
       errorMessage: `All productCodes rejected. attempts=${attemptsStr} lastStatus=${lastStatus}${lastSlsMessages ? ` messages=${lastSlsMessages}` : ""}`,
     };
@@ -602,6 +715,7 @@ export async function createColissimoLabelFromOrder(
     return {
       trackingNumber: null,
       labelPdfBase64: null,
+      cn23PdfBase64: null,
       errorCode: "NETWORK_ERROR",
       errorMessage: message,
     };

@@ -7,6 +7,7 @@ import {
   getColissimoSenderFromCompanyProfile,
 } from "@/server/integrations/colissimo-sls";
 import { FALLBACK_WEIGHT_GRAMS_PER_ITEM } from "@/features/cart/server/cart-weight";
+import { shipmentNeedsCustoms } from "@/lib/constants/eu-countries";
 import type { ShippingSnapshot } from "@/features/checkout/shared/checkout-shipping";
 
 function extractShippingSnapshot(notes: string | null): ShippingSnapshot | null {
@@ -45,7 +46,19 @@ export async function POST(
     where: { id: orderId },
     include: {
       address: true,
-      items: true,
+      items: {
+        include: {
+          product: {
+            select: {
+              hsCode: true,
+              originCountry: true,
+              weightGrams: true,
+              customsDescriptionEn: true,
+              name: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -176,21 +189,54 @@ export async function POST(
         postalCode: addr.postalCode,
         city: addr.city,
         country: addr.country,
+        state: addr.state ?? null,
       };
 
-  const weightGrams =
-    order.items && order.items.length
-      ? order.items.reduce(
-          (sum, item) => sum + FALLBACK_WEIGHT_GRAMS_PER_ITEM * item.quantity,
-          0
-        )
-      : 500;
+  // Per-item weight: real product weight when set, else the shared fallback.
+  const orderItems = order.items ?? [];
+  const itemWeightGrams = (it: (typeof orderItems)[number]): number =>
+    it.product?.weightGrams && it.product.weightGrams > 0
+      ? it.product.weightGrams
+      : FALLBACK_WEIGHT_GRAMS_PER_ITEM;
+
+  const weightGrams = orderItems.length
+    ? orderItems.reduce((sum, item) => sum + itemWeightGrams(item) * item.quantity, 0)
+    : 500;
 
   // Default to "standard" if speed is missing or unknown
   const speed =
     typeof snapshot.speed === "string" && snapshot.speed.trim()
       ? snapshot.speed.trim().toLowerCase()
       : "standard";
+
+  // Customs lines (CN23), resolving product fields with company-profile defaults.
+  const customsItems = orderItems.map((item) => ({
+    descriptionEn: item.product?.customsDescriptionEn || item.productName,
+    quantity: item.quantity,
+    unitPriceCents: item.unitPrice,
+    weightGrams: itemWeightGrams(item),
+    hsCode: item.product?.hsCode || companyProfile.customsDefaultHsCode || null,
+    originCountry:
+      item.product?.originCountry || companyProfile.customsDefaultOriginCountry || "FR",
+  }));
+
+  // Fail fast: a customs shipment needs an HS code on every line, otherwise
+  // Colissimo rejects it (30312/30500). Surface exactly which products are missing.
+  if (shipmentNeedsCustoms(recipient.country)) {
+    const missingHsCode = customsItems.filter((ci) => !ci.hsCode).map((ci) => ci.descriptionEn);
+    if (missingHsCode.length > 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Customs declaration incomplete: missing HS code for an international (non-EU) shipment",
+          errorCode: "CUSTOMS_DATA_MISSING",
+          missingProducts: missingHsCode,
+          hint: "Set an HS code on these products, or a default HS code in the company profile.",
+        },
+        { status: 422 }
+      );
+    }
+  }
 
   const result = await createColissimoLabelFromOrder({
     orderId: order.id,
@@ -201,6 +247,9 @@ export async function POST(
     pickupPointId: snapshot.pickupPoint?.id ?? null,
     weightGrams,
     speed,
+    shippingCents: typeof snapshot.shippingCents === "number" ? snapshot.shippingCents : 0,
+    senderEori: companyProfile.eori ?? null,
+    items: customsItems,
   });
 
   // Gate on presence of tracking + PDF (not error code strings)
@@ -229,6 +278,13 @@ export async function POST(
   mkdirSync(dir, { recursive: true });
   writeFileSync(filePath, Buffer.from(result.labelPdfBase64, "base64"));
 
+  // CN23 customs PDF — present only for international shipments that require it.
+  let cn23Path: string | null = null;
+  if (result.cn23PdfBase64) {
+    cn23Path = `${dir}/${order.orderNumber ?? order.id}-cn23.pdf`;
+    writeFileSync(cn23Path, Buffer.from(result.cn23PdfBase64, "base64"));
+  }
+
   try {
     await prisma.order.update({
       where: { id: order.id },
@@ -237,15 +293,23 @@ export async function POST(
         carrier: "colissimo",
         trackingNumber: sanitizedTracking,
         labelPath: filePath,
+        cn23Path,
         labelGeneratedAt: new Date(),
       },
     });
   } catch (err) {
-    // Rollback: remove orphan file if DB update fails
+    // Rollback: remove orphan files if DB update fails
     try {
       unlinkSync(filePath);
     } catch {
       // best-effort cleanup
+    }
+    if (cn23Path) {
+      try {
+        unlinkSync(cn23Path);
+      } catch {
+        // best-effort cleanup
+      }
     }
     throw err;
   }

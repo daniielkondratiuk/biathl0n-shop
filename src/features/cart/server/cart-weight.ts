@@ -5,8 +5,8 @@
 
 import { getCartForIdentifiers } from "@/features/cart";
 
-// TODO: Replace with real weight fields from Prisma schema (product.weightGrams, sizeVariant.weightGrams)
-// This is a temporary fallback ONLY used when weight data is not available in the database
+// Fallback used only when a product has no weightGrams set.
+// (A future refinement could add a per-size weight on ProductSizeVariant.)
 export const FALLBACK_WEIGHT_GRAMS_PER_ITEM = 250;
 
 /**
@@ -26,9 +26,12 @@ export async function getCartTotalWeightGrams(params: {
   let totalGrams = 0;
 
   for (const item of cart.items) {
-    // Try to get weight from sizeVariant (if weightGrams field exists in future)
-    // For now, use fallback since schema doesn't have weightGrams yet
-    const itemWeightGrams = FALLBACK_WEIGHT_GRAMS_PER_ITEM;
+    // Use the product's real weight when set, otherwise the shared fallback.
+    const productWeight = item.product?.weightGrams;
+    const itemWeightGrams =
+      typeof productWeight === "number" && productWeight > 0
+        ? productWeight
+        : FALLBACK_WEIGHT_GRAMS_PER_ITEM;
     totalGrams += itemWeightGrams * item.quantity;
   }
 

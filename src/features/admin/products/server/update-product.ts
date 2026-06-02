@@ -55,6 +55,11 @@ const updateProductSchema = z.object({
   defaultPatchIds: z.array(z.string()).optional(),
   isActive: z.boolean().optional(),
   showInHero: z.boolean().optional(),
+  // Shipping / customs (Colissimo international)
+  weightGrams: z.number().int().positive().optional().nullable(),
+  hsCode: z.string().optional().nullable(),
+  originCountry: z.string().optional().nullable(),
+  customsDescriptionEn: z.string().optional().nullable(),
   colorVariants: z.array(colorVariantSchema).optional(), // undefined = don't update, [] = delete all
   orderedVariantIds: z.array(z.string()).optional(), // variant IDs in desired display order
   translations: z.record(z.string(), translationInputSchema).optional(),
@@ -167,6 +172,17 @@ export async function updateAdminProductById(
     gender: raw.gender && raw.gender !== "" ? raw.gender : undefined,
     badge: raw.badge && raw.badge !== "" ? raw.badge : undefined,
     defaultPatchIds: Array.isArray(raw.defaultPatchIds) ? raw.defaultPatchIds : [],
+    // Shipping / customs: undefined = leave untouched, "" = clear to null, value = set
+    weightGrams:
+      raw.weightGrams === undefined
+        ? undefined
+        : raw.weightGrams === "" || raw.weightGrams === null
+          ? null
+          : Number(raw.weightGrams),
+    hsCode: raw.hsCode === undefined ? undefined : (raw.hsCode || null),
+    originCountry: raw.originCountry === undefined ? undefined : (raw.originCountry || null),
+    customsDescriptionEn:
+      raw.customsDescriptionEn === undefined ? undefined : (raw.customsDescriptionEn || null),
     // Only set colorVariants if explicitly provided (undefined = don't update, [] = delete all)
     colorVariants: raw.colorVariants !== undefined 
       ? (Array.isArray(raw.colorVariants) ? raw.colorVariants : [])
@@ -292,6 +308,11 @@ export async function updateAdminProductById(
     productUpdateData.visible = data.visible ?? data.isActive;
   }
   if (data.showInHero !== undefined) productUpdateData.showInHero = data.showInHero;
+  if (data.weightGrams !== undefined) productUpdateData.weightGrams = data.weightGrams;
+  if (data.hsCode !== undefined) productUpdateData.hsCode = data.hsCode;
+  if (data.originCountry !== undefined) productUpdateData.originCountry = data.originCountry;
+  if (data.customsDescriptionEn !== undefined)
+    productUpdateData.customsDescriptionEn = data.customsDescriptionEn;
 
   // Prepare flattened color variant operations (if provided)
   // All data structures are plain objects - no functions, no promises

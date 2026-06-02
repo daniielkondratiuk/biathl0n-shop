@@ -65,14 +65,15 @@ export async function POST() {
 
   const contentType = response.headers.get("content-type") ?? "";
   const buf = Buffer.from(await response.arrayBuffer());
-  const snippet = buf.toString("latin1").slice(0, 300);
+  const snippet = buf.toString("latin1").slice(0, 1200);
 
   console.log("[test/colissimo] status:", response.status);
   console.log("[test/colissimo] content-type:", contentType);
-  console.log("[test/colissimo] body (first 300 latin1):", snippet);
+  console.log("[test/colissimo] body (first 1200 latin1):", snippet);
 
   return NextResponse.json({
     status: response.status,
     contentType,
+    body: snippet,
   });
 }

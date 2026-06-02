@@ -139,7 +139,13 @@ export function ProductEditPage({ enabledLanguages = DEFAULT_FORM_LANGUAGES }: P
   const [defaultPatchIds, setDefaultPatchIds] = useState<string[]>([]);
   const [isActive, setIsActive] = useState(true);
   const [showInHero, setShowInHero] = useState(false);
-  
+
+  // Shipping / customs (Colissimo international)
+  const [weightGrams, setWeightGrams] = useState("");
+  const [hsCode, setHsCode] = useState("");
+  const [originCountry, setOriginCountry] = useState("");
+  const [customsDescriptionEn, setCustomsDescriptionEn] = useState("");
+
   // Translation state
   const [activeLocale, setActiveLocale] = useState<string>("en");
   const [translations, setTranslations] = useState<ProductFormTranslations>(() =>
@@ -165,6 +171,10 @@ export function ProductEditPage({ enabledLanguages = DEFAULT_FORM_LANGUAGES }: P
     defaultPatchIds: string[];
     isActive: boolean;
     showInHero: boolean;
+    weightGrams: string;
+    hsCode: string;
+    originCountry: string;
+    customsDescriptionEn: string;
     selectedColorIds: string[];
     colorVariants: ColorVariantData[];
     translations: ProductFormTranslations;
@@ -261,6 +271,10 @@ export function ProductEditPage({ enabledLanguages = DEFAULT_FORM_LANGUAGES }: P
           const loadedDefaultPatchIds = prodData.defaultPatchIds || [];
           const loadedIsActive = prodData.isActive ?? true;
           const loadedShowInHero = prodData.showInHero ?? false;
+          const loadedWeightGrams = prodData.weightGrams != null ? String(prodData.weightGrams) : "";
+          const loadedHsCode = prodData.hsCode || "";
+          const loadedOriginCountry = prodData.originCountry || "";
+          const loadedCustomsDescriptionEn = prodData.customsDescriptionEn || "";
 
           // Detect whether the loaded slug was manually set or auto-generated
           const autoSlugFromLoadedTitle = generateSlug(loadedTitle);
@@ -277,6 +291,10 @@ export function ProductEditPage({ enabledLanguages = DEFAULT_FORM_LANGUAGES }: P
           setDefaultPatchIds(loadedDefaultPatchIds);
           setIsActive(loadedIsActive);
           setShowInHero(loadedShowInHero);
+          setWeightGrams(loadedWeightGrams);
+          setHsCode(loadedHsCode);
+          setOriginCountry(loadedOriginCountry);
+          setCustomsDescriptionEn(loadedCustomsDescriptionEn);
           setTranslations(translationsData);
 
           // Load color variants
@@ -326,6 +344,10 @@ export function ProductEditPage({ enabledLanguages = DEFAULT_FORM_LANGUAGES }: P
             defaultPatchIds: loadedDefaultPatchIds,
             isActive: loadedIsActive,
             showInHero: loadedShowInHero,
+            weightGrams: loadedWeightGrams,
+            hsCode: loadedHsCode,
+            originCountry: loadedOriginCountry,
+            customsDescriptionEn: loadedCustomsDescriptionEn,
             selectedColorIds: loadedSelectedColorIds,
             colorVariants: loadedColorVariants,
             translations: translationsData,
@@ -551,6 +573,10 @@ export function ProductEditPage({ enabledLanguages = DEFAULT_FORM_LANGUAGES }: P
       !arraysEqual(defaultPatchIds, initialState.defaultPatchIds) ||
       isActive !== initialState.isActive ||
       showInHero !== initialState.showInHero ||
+      weightGrams !== initialState.weightGrams ||
+      hsCode !== initialState.hsCode ||
+      originCountry !== initialState.originCountry ||
+      customsDescriptionEn !== initialState.customsDescriptionEn ||
       !arraysEqual(selectedColorIds, initialState.selectedColorIds) ||
       !colorVariantsEqual(colorVariants, initialState.colorVariants) ||
       translationsChanged;
@@ -565,6 +591,10 @@ export function ProductEditPage({ enabledLanguages = DEFAULT_FORM_LANGUAGES }: P
     defaultPatchIds,
     isActive,
     showInHero,
+    weightGrams,
+    hsCode,
+    originCountry,
+    customsDescriptionEn,
     selectedColorIds,
     colorVariants,
     translations,
@@ -728,6 +758,10 @@ export function ProductEditPage({ enabledLanguages = DEFAULT_FORM_LANGUAGES }: P
         defaultPatchIds,
         isActive,
         showInHero,
+        weightGrams: weightGrams.trim() ? parseInt(weightGrams, 10) : null,
+        hsCode: hsCode.trim() || null,
+        originCountry: originCountry.trim() || null,
+        customsDescriptionEn: customsDescriptionEn.trim() || null,
         translations: translationsPayload,
         colorVariants: colorVariants.map((cv) => {
           // Normalize images to ensure MAIN exists and roles are correct
@@ -801,6 +835,10 @@ export function ProductEditPage({ enabledLanguages = DEFAULT_FORM_LANGUAGES }: P
         defaultPatchIds,
         isActive,
         showInHero,
+        weightGrams,
+        hsCode,
+        originCountry,
+        customsDescriptionEn,
         selectedColorIds,
         colorVariants,
         translations: latestTranslations,
@@ -1142,6 +1180,61 @@ export function ProductEditPage({ enabledLanguages = DEFAULT_FORM_LANGUAGES }: P
                         value={defaultPatchIds}
                         onChange={setDefaultPatchIds}
                       />
+                    </div>
+
+                    <div className="space-y-4 rounded-lg border border-border p-4">
+                      <h3 className="text-sm font-semibold text-foreground">
+                        Shipping &amp; customs (Colissimo international)
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-foreground">
+                            Weight (grams)
+                          </label>
+                          <Input
+                            type="number"
+                            min="1"
+                            value={weightGrams}
+                            onChange={(e) => setWeightGrams(e.target.value)}
+                            placeholder="e.g. 250"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-foreground">
+                            HS code
+                          </label>
+                          <Input
+                            value={hsCode}
+                            onChange={(e) => setHsCode(e.target.value)}
+                            placeholder="e.g. 610910"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-foreground">
+                            Origin country (ISO)
+                          </label>
+                          <Input
+                            value={originCountry}
+                            onChange={(e) => setOriginCountry(e.target.value)}
+                            placeholder="FR"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-foreground">
+                            Customs description (EN)
+                          </label>
+                          <Input
+                            value={customsDescriptionEn}
+                            onChange={(e) => setCustomsDescriptionEn(e.target.value)}
+                            placeholder="e.g. Cotton sports jersey"
+                          />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Used for Colissimo international customs declarations (CN23). HS code &amp;
+                        origin are required for non-EU destinations; blank values fall back to the
+                        company defaults.
+                      </p>
                     </div>
 
                     <div className="flex justify-end pt-4">

@@ -98,6 +98,9 @@ storage/**
 backups/
 backup/
 *.sql
+# ...but always keep Prisma migration SQL: prod runs `prisma migrate deploy` from
+# these committed files, so they must never be hidden by the global *.sql rule above.
+!prisma/migrations/**/*.sql
 *.dump
 *.tar
 *.tar.gz

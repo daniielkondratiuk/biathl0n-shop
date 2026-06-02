@@ -95,6 +95,7 @@ export async function createInvoiceForOrder(
       siret: companyProfile.siret,
       vatId: companyProfile.vatId,
       vatNote: companyProfile.vatNote,
+      vatRate: companyProfile.vatRate, // basis points (2000 = 20.00%) captured at issuance
       currency: "EUR", // Shop only supports EUR
       paymentTerms: companyProfile.paymentTerms,
       legalFooter: companyProfile.legalFooter,

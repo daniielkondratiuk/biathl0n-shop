@@ -1,6 +1,7 @@
 // src/server/services/resend.ts
 import "server-only";
 import { Resend } from "resend";
+import type { SendEmailParams } from "./email";
 
 let resendClient: Resend | null = null;
 
@@ -23,20 +24,18 @@ function getResendClient(): Resend | null {
   }
 }
 
-export interface SendEmailParams {
-  to: string;
-  subject: string;
-  html: string;
-  text: string;
+export function isResendConfigured(): boolean {
+  return Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
 }
 
-export async function sendEmail(params: SendEmailParams): Promise<void> {
+export async function sendEmailViaResend(
+  params: SendEmailParams,
+): Promise<void> {
   const client = getResendClient();
   const from = process.env.EMAIL_FROM;
 
   if (!client || !from) {
-    console.warn("[email] Resend not configured, skipping");
-    return;
+    throw new Error("Resend not configured");
   }
 
   try {
@@ -47,9 +46,9 @@ export async function sendEmail(params: SendEmailParams): Promise<void> {
       html: params.html,
       text: params.text,
     });
-    console.log(`[email] Email sent successfully to ${params.to}`);
+    console.log(`[email] Email sent via Resend to ${params.to}`);
   } catch (error) {
-    console.error(`[email] Failed to send email to ${params.to}:`, error);
+    console.error(`[email] Failed to send email via Resend to ${params.to}:`, error);
     throw error;
   }
 }

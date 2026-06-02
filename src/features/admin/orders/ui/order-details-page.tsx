@@ -92,6 +92,7 @@ interface Order {
   trackingNumber: string | null;
   carrier: string | null;
   labelPath: string | null;
+  cn23Path: string | null;
   labelGeneratedAt: string | null;
   invoice: { id: string } | null;
 }
@@ -683,6 +684,18 @@ export function OrderDetailsPage({ orderId }: OrderDetailsPageProps) {
                       }}
                     >
                       Open Label (PDF)
+                    </Button>
+                  )}
+                  {order.cn23Path && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => {
+                        window.open(`/api/admin/orders/${order.id}/cn23`, "_blank");
+                      }}
+                    >
+                      Open CN23 customs (PDF)
                     </Button>
                   )}
                   {order.labelGeneratedAt && (

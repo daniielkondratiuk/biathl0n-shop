@@ -53,6 +53,11 @@ const createProductSchema = z.object({
   defaultPatchIds: z.array(z.string()).default([]),
   isActive: z.boolean().default(true),
   showInHero: z.boolean().default(false),
+  // Shipping / customs (Colissimo international)
+  weightGrams: z.number().int().positive().optional().nullable(),
+  hsCode: z.string().optional().nullable(),
+  originCountry: z.string().optional().nullable(),
+  customsDescriptionEn: z.string().optional().nullable(),
   colorVariants: z.array(colorVariantSchema).min(1, "At least one color variant is required for new products"),
   translations: z.record(z.string(), translationInputSchema).optional(),
   // Legacy fields for backward compatibility
@@ -162,6 +167,14 @@ export async function createAdminProduct(
     gender: raw.gender && raw.gender !== "" ? raw.gender : undefined,
     badge: raw.badge && raw.badge !== "" ? raw.badge : undefined,
     defaultPatchIds: Array.isArray(raw.defaultPatchIds) ? raw.defaultPatchIds : [],
+    weightGrams:
+      raw.weightGrams === "" || raw.weightGrams === null || raw.weightGrams === undefined
+        ? undefined
+        : Number(raw.weightGrams),
+    hsCode: raw.hsCode && raw.hsCode !== "" ? raw.hsCode : undefined,
+    originCountry: raw.originCountry && raw.originCountry !== "" ? raw.originCountry : undefined,
+    customsDescriptionEn:
+      raw.customsDescriptionEn && raw.customsDescriptionEn !== "" ? raw.customsDescriptionEn : undefined,
     colorVariants: Array.isArray(raw.colorVariants) ? raw.colorVariants : [],
   };
 
@@ -242,6 +255,10 @@ export async function createAdminProduct(
           gender: data.gender || null,
           badge: data.badge || null,
           defaultPatchIds: data.defaultPatchIds || [],
+          weightGrams: data.weightGrams ?? null,
+          hsCode: data.hsCode || null,
+          originCountry: data.originCountry || null,
+          customsDescriptionEn: data.customsDescriptionEn || null,
         },
       });
 

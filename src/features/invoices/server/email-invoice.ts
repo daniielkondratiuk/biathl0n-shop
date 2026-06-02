@@ -2,7 +2,7 @@
 import "server-only";
 import { prisma } from "@/server/db/prisma";
 import { getInvoiceByOrderId, createInvoiceForOrder } from "@/features/invoices";
-import { sendEmail } from "@/server/services/resend";
+import { sendEmail } from "@/server/services/email";
 
 /**
  * Send invoice email to customer after payment (idempotent)
@@ -213,12 +213,20 @@ Thank you for shopping with predators Shop!
   `;
 
   // Send email
-  await sendEmail({
+  const delivered = await sendEmail({
     to: customerEmail,
     subject,
     html,
     text,
   });
+
+  // Only mark as sent when a transport actually delivered the email, so a
+  // misconfigured/unavailable transport does not permanently flag the invoice
+  // as sent and block future retries.
+  if (!delivered) {
+    console.warn(`[email-invoice] No email transport delivered invoice for order ${orderId}, not marking as sent`);
+    return;
+  }
 
   // Mark email as sent (idempotency)
   await prisma.invoice.update({

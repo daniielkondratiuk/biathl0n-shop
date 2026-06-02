@@ -22,6 +22,10 @@ interface CompanyProfile {
   siret: string | null;
   vatId: string | null;
   vatNote: string | null;
+  eori: string | null;
+  customsDefaultHsCode: string | null;
+  customsDefaultOriginCountry: string | null;
+  vatRate: number;
   currency: string;
   invoicePrefix: string;
   invoiceNextNumber: number;
@@ -49,6 +53,11 @@ function buildFormData(profile: CompanyProfile | null) {
     siret: profile?.siret || "",
     vatId: profile?.vatId || "",
     vatNote: profile?.vatNote || "",
+    eori: profile?.eori || "",
+    customsDefaultHsCode: profile?.customsDefaultHsCode || "",
+    customsDefaultOriginCountry: profile?.customsDefaultOriginCountry || "",
+    // Displayed to the admin as a percentage; persisted as basis points (×100).
+    vatRatePercent: String((profile?.vatRate ?? 2000) / 100),
     currency: profile?.currency || "EUR",
     invoicePrefix: profile?.invoicePrefix || "INV",
     invoiceNextNumber: profile?.invoiceNextNumber || 1,
@@ -79,14 +88,20 @@ export function CompanyForm({ initialProfile }: CompanyFormProps) {
     setSaving(true);
 
     try {
-      // Prepare payload - convert empty strings to null for optional fields
+      // Prepare payload - convert empty strings to null for optional fields.
+      // vatRatePercent is a UI-only field; it is converted to vatRate (basis points).
+      const { vatRatePercent, ...rest } = formData;
       const payload = {
-        ...formData,
+        ...rest,
         addressLine2: formData.addressLine2 || null,
         siren: formData.siren || null,
         siret: formData.siret || null,
         vatId: formData.vatId || null,
         vatNote: formData.vatNote || null,
+        eori: formData.eori || null,
+        customsDefaultHsCode: formData.customsDefaultHsCode || null,
+        customsDefaultOriginCountry: formData.customsDefaultOriginCountry || null,
+        vatRate: Math.round((parseFloat(vatRatePercent) || 0) * 100),
         paymentTerms: formData.paymentTerms || null,
         legalFooter: formData.legalFooter || null,
         logoUrl: formData.logoUrl || null,
@@ -295,15 +310,38 @@ export function CompanyForm({ initialProfile }: CompanyFormProps) {
               placeholder="123 456 789 00012"
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">VAT ID</label>
-            <Input
-              value={formData.vatId}
-              onChange={(e) =>
-                setFormData({ ...formData, vatId: e.target.value })
-              }
-              placeholder="FR12345678901"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">VAT ID</label>
+              <Input
+                value={formData.vatId}
+                onChange={(e) =>
+                  setFormData({ ...formData, vatId: e.target.value })
+                }
+                placeholder="FR12345678901"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">
+                VAT Rate (%)
+              </label>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                value={formData.vatRatePercent}
+                onChange={(e) =>
+                  setFormData({ ...formData, vatRatePercent: e.target.value })
+                }
+                placeholder="20"
+              />
+              <p className="text-xs text-muted-foreground">
+                Standard rate in France is 20%. Used to show the Total HT / VAT /
+                Total TTC breakdown on invoices. Set to 0 if you use the VAT base
+                exemption (then fill in the VAT Note below).
+              </p>
+            </div>
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
@@ -315,8 +353,64 @@ export function CompanyForm({ initialProfile }: CompanyFormProps) {
                 setFormData({ ...formData, vatNote: e.target.value })
               }
               rows={2}
-              placeholder='e.g. "TVA non applicable, art. 293 B du CGI"'
+              placeholder='Only for VAT-exempt sellers, e.g. "TVA non applicable, art. 293 B du CGI"'
             />
+          </div>
+        </div>
+      </Card>
+
+      {/* Shipping / Customs Section */}
+      <Card className="p-6">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">
+          Shipping / Customs (Colissimo international)
+        </h2>
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">
+                Default HS code
+              </label>
+              <Input
+                value={formData.customsDefaultHsCode}
+                onChange={(e) =>
+                  setFormData({ ...formData, customsDefaultHsCode: e.target.value })
+                }
+                placeholder="e.g. 610910"
+              />
+              <p className="text-xs text-muted-foreground">
+                Fallback tariff code (6/8/10 digits) used for products that don&rsquo;t
+                set their own. Required for non-EU shipments.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">
+                Default origin country
+              </label>
+              <Input
+                value={formData.customsDefaultOriginCountry}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    customsDefaultOriginCountry: e.target.value,
+                  })
+                }
+                placeholder="FR"
+              />
+              <p className="text-xs text-muted-foreground">
+                ISO country code (e.g. FR) of where goods are made. Defaults to FR.
+              </p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">EORI number</label>
+            <Input
+              value={formData.eori}
+              onChange={(e) => setFormData({ ...formData, eori: e.target.value })}
+              placeholder="e.g. FR123456789012345"
+            />
+            <p className="text-xs text-muted-foreground">
+              Economic Operator Registration ID. Mandatory for shipments to the US.
+            </p>
           </div>
         </div>
       </Card>
@@ -390,8 +484,12 @@ export function CompanyForm({ initialProfile }: CompanyFormProps) {
               onChange={(e) =>
                 setFormData({ ...formData, paymentTerms: e.target.value })
               }
-              placeholder="e.g. Net 30 days"
+              placeholder="e.g. Payable on receipt / Net 30 days"
             />
+            <p className="text-xs text-muted-foreground">
+              Shown as the invoice due date. Leave empty for &ldquo;Payable on
+              receipt&rdquo;.
+            </p>
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
@@ -403,8 +501,17 @@ export function CompanyForm({ initialProfile }: CompanyFormProps) {
                 setFormData({ ...formData, legalFooter: e.target.value })
               }
               rows={4}
-              placeholder="Legal mentions, penalties, etc."
+              placeholder={
+                "Legal mentions printed at the bottom of every invoice, e.g.:\n" +
+                "SARL au capital de 10 000 € — RCS Strasbourg 940 547 714 — APE 4764Z\n" +
+                "Médiateur de la consommation : [name], [website]"
+              }
             />
+            <p className="text-xs text-muted-foreground">
+              Use this for company legal identity (legal form, share capital, RCS
+              + registry city) and the consumer mediator details. Rendered in full
+              on the invoice (no truncation).
+            </p>
           </div>
         </div>
       </Card>

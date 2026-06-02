@@ -44,6 +44,11 @@ export interface Product {
   badge: Badge | null;
   defaultPatchIds: string[];
   isActive: boolean;
+  // Shipping / customs (Colissimo international)
+  weightGrams?: number | null;
+  hsCode?: string | null;
+  originCountry?: string | null;
+  customsDescriptionEn?: string | null;
   translations?: Array<{
     locale: string;
     title: string;
